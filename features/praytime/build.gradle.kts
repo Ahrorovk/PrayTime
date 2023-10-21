@@ -7,12 +7,11 @@ plugins {
 
 android {
     namespace = "com.ahrorovk.praytime"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.ahrorovk.praytime"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

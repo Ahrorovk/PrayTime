@@ -18,7 +18,7 @@ fun Navigation(
 ) {
     val navController = rememberNavController()
     Scaffold {
-        NavHost(navController = navController, startDestination = Screens.TasbihScreen.route) {
+        NavHost(navController = navController, startDestination = Screens.PrayTimeScreen.route) {
 //            composable(Screens.TasbihScreen.route) {
 //                val viewModel = hiltViewModel<TasbihViewModel>()
 //                val state = viewModel.state.collectAsState()
