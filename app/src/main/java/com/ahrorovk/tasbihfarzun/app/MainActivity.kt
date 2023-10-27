@@ -21,10 +21,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import com.ahrorovk.tasbihfarzun.app.navigation.Navigation
-import com.ahrorovk.tasbihfarzun.data.network.dto.PostResponse
 import com.ahrorovk.tasbihfarzun.app.ui.theme.TasbihFarzunTheme
 import com.google.accompanist.web.AccompanistWebChromeClient
 import com.google.accompanist.web.AccompanistWebViewClient
@@ -62,16 +60,9 @@ fun doWork() {
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     val scope = CoroutineScope(Dispatchers.Main)
-    private val service = PostApi.create()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val post = produceState<List<PostResponse>>(
-                initialValue = emptyList(),
-                producer = {
-                    value = service.getPosts()
-                }
-            )
             TasbihFarzunTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -83,15 +74,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        var a = scope.isActive
-//        Log.e("JOB_CANCEL","->$a")
-//        scope.cancel()
-//        a=scope.isActive
-//        Log.e("JOB_CANCEL","->$a")
-//    }
 }
 
 @Composable

@@ -143,6 +143,8 @@ object AccompanistDependencies {
         "com.google.accompanist:accompanist-navigation-animation:${Versions.accompanist.animation}"
     const val flowRow =
         "com.google.accompanist:accompanist-flowlayout:${Versions.accompanist.flowRow}"
+    const val swipeRefresh =
+        "com.google.accompanist:accompanist-swiperefresh:${Versions.accompanist.swipeRefresh}"
     const val systemUiController =
         "com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist.systemUiController}"
 }

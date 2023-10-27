@@ -2,6 +2,7 @@ plugins {
     id(GradlePlugin.ANDROID_LIBRARY)
     id(GradlePlugin.ORG_KOTLIN_ANDROID)
     id(GradlePlugin.KAPT)
+    id(GradlePlugin.DAGGER_HILT)
 }
 
 android {
@@ -34,12 +35,16 @@ android {
 }
 
 dependencies {
-    implementation(project(mapOf("path" to ":data:model")))
-    implementation(project(mapOf("path" to ":data:local")))
-    implementation(project(mapOf("path" to ":data:repository")))
-
+    implementation(project(mapOf("path" to ":model")))
+    implementation(project(mapOf("path" to ":local")))
+    // Retrofit
+    implementation(Dependencies.network.retrofit.base)
+    implementation(Dependencies.network.retrofit.gsonConverter)
+    implementation(Dependencies.network.okHttp.base)
+    implementation(Dependencies.network.okHttp.interceptor)
     // Hilt
     implementation(Dependencies.android.hilt.android)
+    implementation(project(mapOf("path" to ":core")))
     kapt(Dependencies.android.hilt.androidCompiler)
     kapt(Dependencies.android.hilt.compiler)
     implementation(Dependencies.android.hilt.navigation)

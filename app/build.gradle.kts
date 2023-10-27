@@ -51,7 +51,6 @@ android {
 }
 
 dependencies {
-    implementation(project(mapOf("path" to ":features:praytime")))
     // Android
     implementation(Dependencies.android.lifecycleRuntime)
     implementation(Dependencies.android.navigationRuntime)
@@ -66,6 +65,9 @@ dependencies {
     // Hilt
     implementation(Dependencies.android.hilt.android)
     implementation(project(mapOf("path" to ":core")))
+    implementation(project(mapOf("path" to ":features:prayertimes")))
+    implementation(project(mapOf("path" to ":local")))
+    implementation(project(mapOf("path" to ":data")))
     kapt(Dependencies.android.hilt.androidCompiler)
     kapt(Dependencies.android.hilt.compiler)
     implementation(Dependencies.android.hilt.navigation)
