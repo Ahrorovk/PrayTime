@@ -6,12 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ahrorovk.core.DataStoreManager
 import com.ahrorovk.core.Resource
+import com.ahrorovk.core.isDateDifferent
 import com.ahrorovk.data.states.GetPrayerTimesState
 import com.ahrorovk.domain.use_case.prayer_times.GetPrayerTimesFromDbUseCase
 import com.ahrorovk.domain.use_case.prayer_times.GetPrayerTimesUseCase
 import com.ahrorovk.domain.use_case.prayer_times.InsertPrayTimeUseCase
 import com.ahrorovk.model.dto.get_prayer_time.GetPrayerTimesResponse
 import com.ahrorovk.model.dto.prayer_times.PrayerTimesDto
+import com.ahrorovk.model.local.pray_time.PrayerTimesEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -23,7 +25,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
-import java.time.LocalDateTime
+import toCurrentInMillis
+import toMMDDYYYY
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -63,10 +67,9 @@ class PrayTimeViewModel @Inject constructor(
             }
 
             PrayerTimesEvent.GetPrayerTimes -> {
-
-                getPrayerTimes()
                 viewModelScope.launch {
-                    dataStoreManager.updateDateState(System.currentTimeMillis())
+                    dataStoreManager.updateDateState(LocalDate.now().toCurrentInMillis())
+                    getPrayerTimes()
                 }
             }
 
@@ -74,69 +77,74 @@ class PrayTimeViewModel @Inject constructor(
                 getPrayerTimesJob?.cancel()
 
                 viewModelScope.launch {
-                    val prayerTimes = getPrayerTimesFromDbUseCase.invoke(
-                        _state.value.selectedYear,
-                        _state.value.selectedMonth,
-                        _state.value.selectedDay
+                    val prayerTimes: PrayerTimesEntity? = getPrayerTimesFromDbUseCase.invoke(
+                        _state.value.dateState
                     )
-                    Log.e("TAG", "DB\n $prayerTimes")
+
+                    Log.e(
+                        "TAG", "DB\n $prayerTimes ${
+                            getPrayerTimesFromDbUseCase.invoke(
+                                _state.value.dateState
+                            )
+                        }"
+                    )
+                    if (prayerTimes == null) {
+                        onEvent(PrayerTimesEvent.OnIsLoadingStateChange(true))
+                        getPrayerTimes()
+                    } else {
+                        onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
+                    }
                     _state.update {
                         it.copy(
                             prayerTimes = prayerTimes
                         )
                     }
+                    Log.e(
+                        "TAG",
+                        "DB\n $prayerTimes ${_state.value.dateState.toMMDDYYYY()}"
+                    )
+                }
+            }
+
+            is PrayerTimesEvent.OnMediaPlayerChange -> {
+                _state.update {
+                    it.copy(mediaPlayer = event.mediaPlayer)
                 }
             }
 
             is PrayerTimesEvent.OnDbDateChange -> {
                 _state.update {
                     it.copy(
-                        selectedYear = event.year,
-                        selectedMonth = event.month,
-                        selectedDay = event.day
+                        dateState = event.dateState
                     )
                 }
                 Log.e(
                     "TAG",
-                    "DATE\n ${_state.value.selectedYear}-${_state.value.selectedMonth}-${_state.value.selectedDay}"
+                    "DATE\n ${_state.value.dateState.toMMDDYYYY()}"
                 )
             }
 
-            is PrayerTimesEvent.OnDateChange -> {
-                _state.update {
-                    it.copy(date = event.date)
-                }
-            }
 
-            is PrayerTimesEvent.OnDateChangeMinus -> {
-                val date = _state.value.date?.minusDays(event.state)
+            is PrayerTimesEvent.OnSelectedUpcomingPrayerTimeChange -> {
                 _state.update {
-                    it.copy(date = date)
-                }
-                val _date = _state.value.date
-                Log.e("TAG", "DATEMINUS\n ${_state.value.date}")
-                onEvent(
-                    PrayerTimesEvent.OnDbDateChange(
-                        _date?.year ?: 0,
-                        _date?.monthValue ?: 0,
-                        _date?.dayOfMonth ?: 0,
+                    it.copy(
+                        selectedUpcomingPrayerTimeInd = event.ind
                     )
-                )
+                }
             }
 
-            is PrayerTimesEvent.OnDateChangePlus -> {
-                val date = _state.value.date?.plusDays(1)
+            is PrayerTimesEvent.OnUpcomingPrayerTimesChange -> {
                 _state.update {
-                    it.copy(date = date)
-                }
-                val _date = _state.value.date
-                onEvent(
-                    PrayerTimesEvent.OnDbDateChange(
-                        _date?.year ?: 0,
-                        _date?.monthValue ?: 0,
-                        _date?.dayOfMonth ?: 0,
+                    it.copy(
+                        upcomingPrayerTimes = event.upcomingPrayerTimes
                     )
-                )
+                }
+            }
+
+            is PrayerTimesEvent.OnIsLoadingStateChange -> {
+                _state.update {
+                    it.copy(isLoading = event.state)
+                }
             }
         }
     }
@@ -153,9 +161,13 @@ class PrayTimeViewModel @Inject constructor(
 
     @SuppressLint("NewApi")
     private fun getPrayerTimes() {
+        Log.e(
+            "TAG",
+            "getPrayerTimesUseCase->${_state.value.dateState.toMMDDYYYY().toMMDDYYYY().year}"
+        )
         getPrayerTimesUseCase.invoke(
-            LocalDateTime.now().year,
-            LocalDateTime.now().monthValue,
+            _state.value.dateState.toMMDDYYYY().toMMDDYYYY().year,
+            _state.value.dateState.toMMDDYYYY().toMMDDYYYY().monthValue,
             "${_state.value.selectedCity}, ${_state.value.selectedCountry}",
             _state.value.selectedMethod,
             _state.value.selectedSchool
@@ -171,19 +183,28 @@ class PrayTimeViewModel @Inject constructor(
                                 )
                             )
                         )
+                        onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
+
                         response?.data?.forEachIndexed { index, data ->
-                            insertPrayerTimes(
-                                PrayerTimesDto(
-                                    id = index + 1,
-                                    fajrTime = data.timings.Fajr,
-                                    zuhrTime = data.timings.Dhuhr,
-                                    asrTime = data.timings.Asr,
-                                    magribTime = data.timings.Maghrib,
-                                    ishaTime = data.timings.Isha,
-                                    islamicDate = data.date.hijri.date,
-                                    date = data.date.gregorian.date
+                            if (isDateDifferent(
+                                    _state.value.dateState,
+                                    _state.value.prayerTimes?.date
+                                        ?: _state.value.dateState.toMMDDYYYY()
                                 )
-                            )
+                            ) {
+                                insertPrayerTimes(
+                                    PrayerTimesDto(
+                                        id = _state.value.prayerTimes?.id?.plus(index + 1),
+                                        fajrTime = data.timings.Fajr,
+                                        zuhrTime = data.timings.Dhuhr,
+                                        asrTime = data.timings.Asr,
+                                        magribTime = data.timings.Maghrib,
+                                        ishaTime = data.timings.Isha,
+                                        islamicDate = data.date.hijri.date,
+                                        date = data.date.gregorian.date
+                                    )
+                                )
+                            }
                         }
                         Log.e(
                             "TAG",
@@ -192,6 +213,7 @@ class PrayTimeViewModel @Inject constructor(
                     }
 
                     is Resource.Error -> {
+                        onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
                         onEvent(
                             PrayerTimesEvent.OnGetPrayerTimesStateChange(
                                 GetPrayerTimesState(
@@ -203,6 +225,7 @@ class PrayTimeViewModel @Inject constructor(
                     }
 
                     is Resource.Loading -> {
+                        onEvent(PrayerTimesEvent.OnIsLoadingStateChange(true))
                         onEvent(
                             PrayerTimesEvent.OnGetPrayerTimesStateChange(
                                 GetPrayerTimesState(

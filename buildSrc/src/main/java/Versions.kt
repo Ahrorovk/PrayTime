@@ -46,7 +46,7 @@ object OkHttpVersions {
 object AccompanistVersions {
     const val animation = "0.20.2"
     const val flowRow = "0.20.3"
-    const val swipeRefresh = "0.24.8-beta"
+    const val swipeRefresh = "0.19.0"
     const val systemUiController = "0.24.2-alpha"
 }
 
