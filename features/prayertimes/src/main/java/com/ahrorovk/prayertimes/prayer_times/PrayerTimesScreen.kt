@@ -1,24 +1,34 @@
 package com.ahrorovk.prayertimes.prayer_times
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Button
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import com.ahrorovk.components.CustomProgressIndicator
+import com.ahrorovk.components.TimeItem
+import com.ahrorovk.components.datePicker.DatePickerLabel
+import com.ahrorovk.core.findMinDifference
+import com.ahrorovk.core.getListOfTimes
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import showLog
+import toMMDDYYYY
+import java.time.LocalTime
 
 @SuppressLint("NewApi")
 @Composable
@@ -26,73 +36,66 @@ fun PrayerTimesScreen(
     state: PrayerTimesState,
     onEvent: (PrayerTimesEvent) -> Unit
 ) {
+    val currentTime = LocalTime.now()
     val context = LocalContext.current
-
-    val refreshState = rememberSwipeRefreshState(
-        isRefreshing = state.prayerTimesState.isLoading,
-    )
-
+    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(key1 = state.prayerTimesState.error.isNotEmpty()) {
-        Toast.makeText(context, state.prayerTimesState.error, Toast.LENGTH_SHORT).show()
+        if (state.prayerTimesState.error.isNotEmpty())
+            Toast.makeText(context, state.prayerTimesState.error, Toast.LENGTH_SHORT).show()
     }
+    CustomProgressIndicator(isLoading = state.isLoading)
+    state.prayerTimes?.let { resp ->
+        onEvent(
+            PrayerTimesEvent.OnSelectedUpcomingPrayerTimeChange(
+                findMinDifference(currentTime,
+                    getListOfTimes(resp).map {
+                        it.time
+                    }
+                )
+            )
+        )
+        val listOfTimes = getListOfTimes(resp)
+        listOfTimes[state.selectedUpcomingPrayerTimeInd].isTime = true
+        onEvent(PrayerTimesEvent.OnUpcomingPrayerTimesChange(listOfTimes))
 
+        LaunchedEffect(key1 = getListOfTimes(resp)) {
+            val listOfTimes = getListOfTimes(resp)
+            Log.e("LIST_OF_TIMES", "$listOfTimes")
+            listOfTimes[state.selectedUpcomingPrayerTimeInd].isTime = true
+            onEvent(PrayerTimesEvent.OnUpcomingPrayerTimesChange(listOfTimes))
+        }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
+        LaunchedEffect(key1 = state.dateState) {
+            onEvent(PrayerTimesEvent.GetPrayerTimesFromDb)
+        }
         SwipeRefresh(
-            modifier = Modifier.fillMaxSize(),
-            state = refreshState,
+            modifier = Modifier
+                .fillMaxSize(),
+            state = rememberSwipeRefreshState(
+                isRefreshing = state.prayerTimesState.isLoading,
+            ),
             onRefresh = {
                 onEvent(PrayerTimesEvent.GetPrayerTimes)
             }
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Button(onClick = {
-                    if (!state.prayerTimesState.isLoading)
-                        onEvent(PrayerTimesEvent.GetPrayerTimes)
-                }) {
-                    if (state.prayerTimesState.isLoading)
-                        CircularProgressIndicator(modifier = Modifier.background(Color.Red))
-                    else
-                        Text(text = "Refresh")
-                }
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Button(onClick = {
-                            onEvent(PrayerTimesEvent.OnDateChangeMinus(1))
-                            onEvent(PrayerTimesEvent.GetPrayerTimesFromDb)
-                        }) {
-                            Text(text = "Back")
+            DatePickerLabel(
+                modifier = Modifier.padding(top = 20.dp, start = 12.dp),
+                date = state.dateState.toMMDDYYYY(), onDatePick = {
+                    onEvent(PrayerTimesEvent.OnDbDateChange(it))
+                })
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
+                    items(state.upcomingPrayerTimes) {
+                        TimeItem(it) {
+                            
                         }
-
-
-                        Button(onClick = {
-                            onEvent(PrayerTimesEvent.OnDateChangePlus(1))
-                            onEvent(PrayerTimesEvent.GetPrayerTimesFromDb)
-                        }) {
-                            Text(text = "Next")
-                        }
+                        Spacer(modifier = Modifier.padding(12.dp))
                     }
                 }
-                state.prayerTimes?.let { resp ->
-                    Text(text = resp.fajrTime)
-                    Text(text = resp.zuhrTime)
-                    Text(text = resp.asrTime)
-                    Text(text = resp.magribTime)
-                    Text(text = resp.ishaTime)
-                    Text(text = resp.date)
-
-                }
-
             }
         }
     }
