@@ -9,9 +9,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ahrorovk.core.Routes
+import com.ahrorovk.core.doesScreenHaveBottomBar
 import com.ahrorovk.prayertimes.prayer_times.PrayTimeViewModel
 import com.ahrorovk.prayertimes.prayer_times.PrayerTimesEvent
 import com.ahrorovk.prayertimes.prayer_times.PrayerTimesScreen
+import com.ahrorovk.tasbihfarzun.app.navigation.components.PrayerfulPathBottomBar
+import com.ahrorovk.zikr.zikr.ZikrScreen
+import com.ahrorovk.zikr.zikr.ZikrViewModel
+import toCurrentInMillis
 import java.time.LocalDate
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "NewApi")
@@ -20,34 +26,43 @@ fun Navigation(
     navigationViewModel: NavigationViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
-    Scaffold {
-        NavHost(navController = navController, startDestination = Screens.PrayTimeScreen.route) {
-//            composable(Screens.TasbihScreen.route) {
-//                val viewModel = hiltViewModel<TasbihViewModel>()
-//                val state = viewModel.state.collectAsState()
-//                TasbihScreen(state = state.value, onEvent = { event ->
-//                    when (event) {
-//                        else -> {
-//                            viewModel.onEvent(event)
-//                        }
-//                    }
-//                })
-//            }
-            composable(Screens.PrayTimeScreen.route) {
+    val currentScreen = navController.currentDestination?.route ?: ""
+    Scaffold(
+        bottomBar = {
+            if (doesScreenHaveBottomBar(currentScreen)) {
+                PrayerfulPathBottomBar(navController)
+            }
+        }
+    ) {
+        NavHost(navController = navController, startDestination = Routes.PrayTimeScreen.route) {
+            composable(Routes.ZikrScreen.route) {
+                val viewModel = hiltViewModel<ZikrViewModel>()
+                val state = viewModel.state.collectAsState()
+                ZikrScreen(state = state.value,
+                    onEvent = { event ->
+                        when (event) {
+                            else -> {
+                                viewModel.onEvent(event)
+                            }
+                        }
+                    })
+            }
+            composable(Routes.PrayTimeScreen.route) {
                 val viewModel = hiltViewModel<PrayTimeViewModel>()
                 val state = viewModel.state.collectAsState()
                 LaunchedEffect(key1 = true) {
                     viewModel.onEvent(PrayerTimesEvent.GetPrayerTimes)
-                    viewModel.onEvent(PrayerTimesEvent.OnDateChange(LocalDate.now()))
                     viewModel.onEvent(
                         PrayerTimesEvent.OnDbDateChange(
-                            LocalDate.now().year,
-                            LocalDate.now().monthValue,
-                            LocalDate.now().dayOfMonth
+                            LocalDate.now().toCurrentInMillis()
                         )
                     )
-                    viewModel.onEvent(PrayerTimesEvent.GetPrayerTimesFromDb)
                 }
+                LaunchedEffect(key1 = state.value.prayerTimesState.response?.code) {
+                    if (state.value.prayerTimesState.response?.code == 200)
+                        viewModel.onEvent(PrayerTimesEvent.GetPrayerTimesFromDb)
+                }
+
                 PrayerTimesScreen(state = state.value,
                     onEvent = { event ->
                         when (event) {

@@ -62,6 +62,7 @@ dependencies {
     // Hilt
     implementation(Dependencies.android.hilt.android)
     implementation(project(mapOf("path" to ":data")))
+    implementation(project(mapOf("path" to ":common:components")))
     implementation(project(mapOf("path" to ":core")))
     implementation(project(mapOf("path" to ":domain")))
     implementation(project(mapOf("path" to ":model")))
@@ -72,6 +73,8 @@ dependencies {
     implementation(Dependencies.coroutines.android)
     implementation(Dependencies.coroutines.test)
     implementation(Dependencies.coroutines.core)
+    //WorkManager
+    implementation ("androidx.work:work-runtime-ktx:2.9.1")
     // Paging
     implementation(Dependencies.paging.compose)
     implementation(Dependencies.paging.runtime)

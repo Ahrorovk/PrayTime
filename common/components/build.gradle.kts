@@ -25,6 +25,12 @@ android {
             )
         }
     }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = Versions.compose.compose
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -76,4 +82,5 @@ dependencies {
     implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.0.2")
     implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.0.2")
     implementation("com.maxkeppeler.sheets-compose-dialogs:clock:1.0.2")
+    implementation("com.maxkeppeler.sheets-compose-dialogs:state:1.0.2")
 }

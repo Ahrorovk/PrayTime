@@ -14,5 +14,5 @@ interface PrayerTimesRepository {
     ): GetPrayerTimesResponse
 
     suspend fun insertPrayTime(prayerTimesEntity: PrayerTimesEntity)
-    suspend fun getPrayTimesFromDbByDate(date:String): PrayerTimesEntity
+    suspend fun getPrayTimesFromDbByDate(date:String): PrayerTimesEntity?
 }

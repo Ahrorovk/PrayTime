@@ -12,7 +12,7 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Tasbih Farzun"
+rootProject.name = "Prayerful Path"
 include (":app")
 include(":core")
 include(":domain")
@@ -24,3 +24,4 @@ include(":common")
 include(":common:components")
 include(":features")
 include(":features:prayertimes")
+include(":features:zikr")
