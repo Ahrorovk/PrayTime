@@ -12,7 +12,6 @@ interface PrayerTimesApi {
         @Path("year") year: Int,
         @Path("month") month: Int,
         @Query("address") address: String,
-        @Query("method") method: Int,
         @Query("school") school: Int
     ): GetPrayerTimesResponse
 }

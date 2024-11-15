@@ -17,13 +17,12 @@ class GetPrayerTimesUseCase @Inject constructor(
         year: Int,
         month: Int,
         address: String,
-        method: Int,
         school: Int
     ): Flow<Resource<GetPrayerTimesResponse>> =
         flow {
             try {
                 emit(Resource.Loading<GetPrayerTimesResponse>())
-                val response = repository.getPrayerTimes(year, month, address, method, school)
+                val response = repository.getPrayerTimes(year, month, address, school)
                 emit(Resource.Success<GetPrayerTimesResponse>(response))
             } catch (e: HttpException) {
                 emit(

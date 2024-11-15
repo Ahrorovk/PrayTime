@@ -45,7 +45,7 @@ fun PrayerTimesScreen(
     }
     CustomProgressIndicator(isLoading = state.isLoading)
     state.prayerTimes?.let { resp ->
-        onEvent(
+        /*onEvent(
             PrayerTimesEvent.OnSelectedUpcomingPrayerTimeChange(
                 findMinDifference(currentTime,
                     getListOfTimes(resp).map {
@@ -53,18 +53,7 @@ fun PrayerTimesScreen(
                     }
                 )
             )
-        )
-        val listOfTimes = getListOfTimes(resp)
-        listOfTimes[state.selectedUpcomingPrayerTimeInd].isTime = true
-        onEvent(PrayerTimesEvent.OnUpcomingPrayerTimesChange(listOfTimes))
-
-        LaunchedEffect(key1 = getListOfTimes(resp)) {
-            val listOfTimes = getListOfTimes(resp)
-            Log.e("LIST_OF_TIMES", "$listOfTimes")
-            listOfTimes[state.selectedUpcomingPrayerTimeInd].isTime = true
-            onEvent(PrayerTimesEvent.OnUpcomingPrayerTimesChange(listOfTimes))
-        }
-
+        )*/
         LaunchedEffect(key1 = state.dateState) {
             onEvent(PrayerTimesEvent.GetPrayerTimesFromDb)
         }
@@ -91,7 +80,7 @@ fun PrayerTimesScreen(
                 LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
                     items(state.upcomingPrayerTimes) {
                         TimeItem(it) {
-                            
+
                         }
                         Spacer(modifier = Modifier.padding(12.dp))
                     }
