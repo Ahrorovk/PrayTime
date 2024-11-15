@@ -9,7 +9,6 @@ interface PrayerTimesRepository {
         year: Int,
         month: Int,
         address: String,
-        method: Int,
         school: Int
     ): GetPrayerTimesResponse
 

@@ -17,6 +17,7 @@ import com.ahrorovk.model.local.pray_time.PrayerTimesEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
@@ -89,8 +90,7 @@ class PrayTimeViewModel @Inject constructor(
                         }"
                     )
                     if (prayerTimes == null) {
-                        onEvent(PrayerTimesEvent.OnIsLoadingStateChange(true))
-                        getPrayerTimes()
+//                        onEvent(PrayerTimesEvent.OnIsLoadingStateChange(true))
                     } else {
                         onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
                     }
@@ -169,32 +169,23 @@ class PrayTimeViewModel @Inject constructor(
             _state.value.dateState.toMMDDYYYY().toMMDDYYYY().year,
             _state.value.dateState.toMMDDYYYY().toMMDDYYYY().monthValue,
             "${_state.value.selectedCity}, ${_state.value.selectedCountry}",
-            _state.value.selectedMethod,
             _state.value.selectedSchool
         )
             .onEach { result: Resource<GetPrayerTimesResponse> ->
                 when (result) {
                     is Resource.Success -> {
                         val response: GetPrayerTimesResponse? = result.data
-                        onEvent(
-                            PrayerTimesEvent.OnGetPrayerTimesStateChange(
-                                GetPrayerTimesState(
-                                    response = response
-                                )
-                            )
-                        )
-                        onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
 
                         response?.data?.forEachIndexed { index, data ->
-                            if (isDateDifferent(
-                                    _state.value.dateState,
-                                    _state.value.prayerTimes?.date
-                                        ?: _state.value.dateState.toMMDDYYYY()
-                                )
-                            ) {
+//                            if (isDateDifferent(
+//                                    _state.value.dateState,
+//                                    _state.value.prayerTimes?.date
+//                                        ?: _state.value.dateState.toMMDDYYYY()
+//                                )
+//                            ) {
                                 insertPrayerTimes(
                                     PrayerTimesDto(
-                                        id = _state.value.prayerTimes?.id?.plus(index + 1),
+                                        id = null,
                                         fajrTime = data.timings.Fajr,
                                         zuhrTime = data.timings.Dhuhr,
                                         asrTime = data.timings.Asr,
@@ -204,8 +195,18 @@ class PrayTimeViewModel @Inject constructor(
                                         date = data.date.gregorian.date
                                     )
                                 )
-                            }
+//                            }
                         }
+                        delay(300)
+                        onEvent(
+                            PrayerTimesEvent.OnGetPrayerTimesStateChange(
+                                GetPrayerTimesState(
+                                    response = response
+                                )
+                            )
+                        )
+                        onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
+
                         Log.e(
                             "TAG",
                             "GetPrayerTimesResponse->\n ${_state.value.prayerTimesState.response}"

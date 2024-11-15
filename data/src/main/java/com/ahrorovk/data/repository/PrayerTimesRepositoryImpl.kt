@@ -24,8 +24,7 @@ class PrayerTimesRepositoryImpl(
         year: Int,
         month: Int,
         address: String,
-        method: Int,
         school: Int
     ): GetPrayerTimesResponse =
-        prayerTimesApi.getPrayerTimes(year, month, address, method, school)
+        prayerTimesApi.getPrayerTimes(year, month, address, school)
 }
