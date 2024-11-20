@@ -17,13 +17,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ZikrItem(text: String, isSelected: Boolean, onClick: () -> Unit) {
+fun ZikrItem(text: String, isSelected: Boolean, onClick: (Boolean) -> Unit) {
     Card(
         modifier = Modifier
             .size(150.dp)
             .padding(16.dp)
             .padding(top = 40.dp)
-            .clickable { onClick() },
+            .clickable { onClick(!isSelected) },
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) Color.Blue else Color.White
         )
@@ -35,16 +35,5 @@ fun ZikrItem(text: String, isSelected: Boolean, onClick: () -> Unit) {
             color = if (isSelected) Color.White else Color.Black
         )
     }
-}
-
-@Composable
-fun SingleZikrItem() {
-    var isSelected by remember { mutableStateOf(false) }
-
-    ZikrItem(
-        text = "My Zikr",
-        isSelected = isSelected,
-        onClick = { isSelected = !isSelected }
-    )
 }
 
