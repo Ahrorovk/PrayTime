@@ -67,6 +67,9 @@ dependencies {
     //implementation(Dependencies.compose.uiTest)
     // Hilt
     implementation(Dependencies.android.hilt.android)
+    implementation("androidx.test:monitor:1.7.2")
+    implementation("androidx.test.ext:junit-ktx:1.2.1")
+    implementation("androidx.compose.material3:material3-android:1.3.1")
     kapt(Dependencies.android.hilt.androidCompiler)
     kapt(Dependencies.android.hilt.compiler)
     implementation(Dependencies.android.hilt.navigation)
