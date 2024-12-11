@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun BigBox(text: String) {
+fun ZikrText(text: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
