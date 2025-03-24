@@ -51,6 +51,7 @@ fun Navigation(
                 val viewModel = hiltViewModel<PrayTimeViewModel>()
                 val state = viewModel.state.collectAsState()
                 LaunchedEffect(key1 = true) {
+
                     viewModel.onEvent(PrayerTimesEvent.GetPrayerTimes)
                     viewModel.onEvent(
                         PrayerTimesEvent.OnDbDateChange(

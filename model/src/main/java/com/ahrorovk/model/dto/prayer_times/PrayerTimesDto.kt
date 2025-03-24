@@ -1,7 +1,7 @@
 package com.ahrorovk.model.dto.prayer_times
 
 data class PrayerTimesDto(
-    val id: Int?,
+    val id: Int? = null,
     val fajrTime: String,
     val zuhrTime: String,
     val asrTime: String,
