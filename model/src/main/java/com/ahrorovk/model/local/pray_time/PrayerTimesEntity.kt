@@ -3,11 +3,12 @@ package com.ahrorovk.model.local.pray_time
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serial
 
 @Entity(tableName = PrayerTimesEntity.TABLE_NAME)
 data class PrayerTimesEntity(
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = COLUMN_ID) val id: Int? = null,
+    @ColumnInfo(name = COLUMN_ID) val id: Serial? = null,
     @ColumnInfo(name = COLUMN_FAJR_TIME) val fajrTime: String,
     @ColumnInfo(name = COLUMN_ZUHR_TIME) val zuhrTime: String,
     @ColumnInfo(name = COLUMN_ASR_TIME) val asrTime: String,

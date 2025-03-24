@@ -7,7 +7,7 @@ import com.ahrorovk.model.local.pray_time.PrayerTimesEntity
 
 @Database(
     entities = [PrayerTimesEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class PrayTimeDatabase : RoomDatabase() {

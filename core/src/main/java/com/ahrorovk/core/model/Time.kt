@@ -4,5 +4,5 @@ data class Time(
     val name: String,
     val time: String,
     val icon: Int,
-    var isTime: Boolean = false
+    var isTime: Boolean = true
 )

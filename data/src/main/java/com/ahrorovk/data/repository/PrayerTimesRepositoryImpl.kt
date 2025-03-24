@@ -17,7 +17,7 @@ class PrayerTimesRepositoryImpl(
     override suspend fun getPrayTimesFromDbByDate(date: String): PrayerTimesEntity? =
         prayTimeDao.getPrayTimesFromDb(date)
 
-    override suspend fun insertPrayTime(prayerTimesEntity: PrayerTimesEntity) =
+    override suspend fun insertPrayTime(prayerTimesEntity: List<PrayerTimesEntity>) =
         prayTimeDao.insert(prayerTimesEntity)
 
     override suspend fun getPrayerTimes(
