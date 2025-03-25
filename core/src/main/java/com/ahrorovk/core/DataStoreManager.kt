@@ -9,17 +9,26 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.map
 
-class DataStoreManager(private val context:Context) {
+class DataStoreManager(private val context: Context) {
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("preferences_name")
         val TASBIH_COUNTER_STATE = intPreferencesKey("tasbih_counter_state")
         val DATE_STATE = longPreferencesKey("date_state")
+        val LANGUAGE_STATE = intPreferencesKey("language_state")
     }
+
     suspend fun updateTasbihCounterState(state: Int) {
         context.dataStore.edit { preferences ->
             preferences[TASBIH_COUNTER_STATE] = state
         }
     }
+
+    suspend fun updateLanguageState(state: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[LANGUAGE_STATE] = state
+        }
+    }
+
     suspend fun updateDateState(state: Long) {
         context.dataStore.edit { preferences ->
             preferences[DATE_STATE] = state
@@ -31,5 +40,9 @@ class DataStoreManager(private val context:Context) {
     }
     val getDateState = context.dataStore.data.map {
         it[DATE_STATE] ?: 0
+    }
+
+    val getLanguageState = context.dataStore.data.map {
+        it[LANGUAGE_STATE] ?: 0
     }
 }

@@ -32,9 +32,6 @@
       <SelectionState runConfigName="remote">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="preview">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="common">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
