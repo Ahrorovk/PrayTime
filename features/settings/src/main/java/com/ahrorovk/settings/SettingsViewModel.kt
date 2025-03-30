@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,6 +24,7 @@ class SettingsViewModel @Inject constructor(
         SharingStarted.WhileSubscribed(5000L),
         SettingsState()
     )
+
     init {
         dataStoreManager.getLanguageState.onEach { value ->
             _state.update {
@@ -32,7 +34,14 @@ class SettingsViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
     }
-    fun onEvent(event: SettingsEvent) {
 
+    fun onEvent(event: SettingsEvent) {
+        when(event) {
+            is SettingsEvent.CHANGE_LANGUAGE -> {
+                viewModelScope.launch {
+                    dataStoreManager.updateLanguageState(event.newLanguage.id)
+                }
+            }
+        }
     }
 }
