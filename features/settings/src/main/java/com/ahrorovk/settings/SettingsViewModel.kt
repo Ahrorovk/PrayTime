@@ -37,7 +37,7 @@ class SettingsViewModel @Inject constructor(
 
     fun onEvent(event: SettingsEvent) {
         when(event) {
-            is SettingsEvent.CHANGE_LANGUAGE -> {
+            is SettingsEvent.OnLanguageChange -> {
                 viewModelScope.launch {
                     dataStoreManager.updateLanguageState(event.newLanguage.id)
                 }
