@@ -66,6 +66,7 @@ dependencies {
     implementation(Dependencies.android.hilt.android)
     implementation(project(mapOf("path" to ":core")))
     implementation(project(mapOf("path" to ":features:prayertimes")))
+    implementation(project(mapOf("path" to ":features:settings")))
     implementation(project(mapOf("path" to ":features:zikr")))
     implementation(project(mapOf("path" to ":local")))
     implementation(project(mapOf("path" to ":data")))
