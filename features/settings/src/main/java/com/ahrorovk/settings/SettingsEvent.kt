@@ -1,5 +1,7 @@
 package com.ahrorovk.settings
 
-sealed class SettingsEvent {
+import com.ahrorovk.core.model.Language
 
+sealed class SettingsEvent {
+    data class OnLanguageChange(val newLanguage: Language): SettingsEvent()
 }
