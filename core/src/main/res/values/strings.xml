@@ -1,3 +1,13 @@
 <resources>
-    <string name="app_name">core</string>
+    <string name="app_name">Prayerful Path</string>
+    <string name="location">LOCATION</string>
+    <string name="sughd_khujand">Sughd Khujand</string>
+    <string name="system_settings">System Settings</string>
+    <string name="prayer_time">Pray Time</string>
+    <string name="notification_and_sound">Notification and Sound</string>
+    <string name="language">Language</string>
+    <string name="choose_language">Choose language</string>
+    <string name="english">English</string>
+    <string name="russian">Russian</string>
+    <string name="cancel">Cancel</string>
 </resources>

@@ -1,8 +1,13 @@
 <resources>
     <string name="app_name">Prayerful Path</string>
     <string name="location">ЛОКАЦИЯ</string>
+    <string name="sughd_khujand">Согд Худжанд</string>
     <string name="system_settings">Системные Настройки</string>
     <string name="prayer_time">Время Намаза</string>
     <string name="notification_and_sound">Уведомления и Звуки</string>
     <string name="language">Язык</string>
+    <string name="choose_language">Выберите язык</string>
+    <string name="english">Английский</string>
+    <string name="russian">Русский</string>
+    <string name="cancel">Отмена</string>
 </resources>

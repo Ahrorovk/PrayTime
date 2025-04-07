@@ -6,6 +6,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.ahrorovk.core.model.Language
 import com.ahrorovk.core.model.Time
 import com.ahrorovk.model.local.pray_time.PrayerTimesEntity
 import toMMDDYYYY
@@ -67,6 +68,11 @@ fun getListOfTimes(times: PrayerTimesEntity) = listOf(
     Time("Asr", times.asrTime, R.drawable.asr),
     Time("Maghrib", times.magribTime, R.drawable.maghrib),
     Time("Isha", times.ishaTime, R.drawable.isha)
+)
+
+fun getLanguages() = listOf(
+    Language(0, "English", "en"),
+    Language(1, "Russian", "ru")
 )
 
 @SuppressLint("NewApi")

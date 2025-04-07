@@ -1,8 +1,3 @@
 <resources>
     <string name="app_name">Prayerful Path</string>
-    <string name="location">LOCATION</string>
-    <string name="system_settings">System Settings</string>
-    <string name="prayer_time">Pray Time</string>
-    <string name="notification_and_sound">Notification and Sound</string>
-    <string name="language">Language</string>
 </resources>

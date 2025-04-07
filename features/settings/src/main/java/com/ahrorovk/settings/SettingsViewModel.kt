@@ -27,10 +27,16 @@ class SettingsViewModel @Inject constructor(
 
     init {
         dataStoreManager.getLanguageState.onEach { value ->
-            _state.update {
-                it.copy(
-                    language = _state.value.language.copy(id = value)
-                )
+//            _state.update {
+//                it.copy(
+//                    language = _state.value.language.copy(id = value),
+//                )
+//            }
+            val selectedLanguage = _state.value.availableLanguages.find { it.id == value }
+            selectedLanguage?.let { language ->
+                _state.update {
+                    it.copy(language = language)
+                }
             }
         }.launchIn(viewModelScope)
     }
@@ -40,8 +46,12 @@ class SettingsViewModel @Inject constructor(
             is SettingsEvent.OnLanguageChange -> {
                 viewModelScope.launch {
                     dataStoreManager.updateLanguageState(event.newLanguage.id)
+                    _state.update {
+                        it.copy(language = event.newLanguage)
+                    }
                 }
             }
         }
     }
 }
+

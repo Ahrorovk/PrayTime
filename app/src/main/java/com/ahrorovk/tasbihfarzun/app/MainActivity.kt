@@ -1,5 +1,6 @@
 package com.ahrorovk.tasbihfarzun.app
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -22,6 +23,10 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.ahrorovk.core.DataStoreManager
+import com.ahrorovk.core.getLanguages
+import com.ahrorovk.settings.LocaleHelper
+import com.ahrorovk.settings.SettingsScreen
 import com.ahrorovk.tasbihfarzun.app.navigation.Navigation
 import com.ahrorovk.tasbihfarzun.app.ui.theme.TasbihFarzunTheme
 import com.google.accompanist.web.AccompanistWebChromeClient
@@ -36,11 +41,14 @@ import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.lang.Thread.sleep
+import java.util.Locale
 
 val handlerException = CoroutineExceptionHandler { coroutineContext, throwable ->
     Log.e("exception Handler", "-> ${throwable.message}\n${coroutineContext.isActive}")
@@ -59,17 +67,31 @@ fun doWork() {
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    val scope = CoroutineScope(Dispatchers.Main)
+    // ← сюда вставляем override attachBaseContext()
+
+    override fun attachBaseContext(newBase: Context) {
+        val dataStoreManager = DataStoreManager(newBase)
+
+        // Блокируем поток, чтобы получить язык синхронно
+        val context = runBlocking {
+            val languageIndex = dataStoreManager.getLanguageState.first()
+            val langCode = getLanguages()[languageIndex].shortCut
+            val locale = Locale(langCode)
+            LocaleHelper.setLocale(newBase, locale)
+        }
+
+        super.attachBaseContext(context)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             TasbihFarzunTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Navigation()
+                    SettingsScreen()
                 }
             }
         }
