@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ahrorovk.core.DataStoreManager
@@ -29,8 +31,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
-import toCurrentInMillis
-import toMMDDYYYY
+import com.ahrorovk.core.toCurrentInMillis
+import com.ahrorovk.core.toMMDDYYYY
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -80,21 +82,20 @@ class PrayTimeViewModel @Inject constructor(
 
             PrayerTimesEvent.GetPrayerTimesFromDb -> {
                 getPrayerTimesJob?.cancel()
-                viewModelScope.launch {
-                    val prayerTimes: PrayerTimesEntity? = getPrayerTimesFromDbUseCase.invoke(
-                        _state.value.dateState
-                    )
-                    if (prayerTimes == null) {
+                getPrayerTimesFromDbUseCase.invoke(
+                    _state.value.dateState
+                ).onEach { prTm ->
+                    if (prTm.isEmpty()) {
                         onEvent(PrayerTimesEvent.OnIsLoadingStateChange(true))
                     } else {
                         onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
                     }
                     _state.update {
                         it.copy(
-                            prayerTimes = prayerTimes
+                            prayerTimes = prTm
                         )
                     }
-                }
+                }.launchIn(viewModelScope)
             }
 
             is PrayerTimesEvent.OnMediaPlayerChange -> {
@@ -169,44 +170,71 @@ class PrayTimeViewModel @Inject constructor(
     @SuppressLint("NewApi")
     private fun getPrayerTimes() {
         viewModelScope.launch {
-            // First try to get data from Room
-            val cachedPrayerTimes = getPrayerTimesFromDbUseCase.invoke(_state.value.dateState)
+            getPrayerTimesFromDbUseCase.invoke(_state.value.dateState).onEach { cachedPrayerTimes ->
+                if (cachedPrayerTimes != emptyList<PrayerTimesEntity>()) {
+                    cachedPrayerTimes.forEach { prTm ->
+                        if (prTm.date == _state.value.dateState.toMMDDYYYY()) {
+                            _state.update {
+                                it.copy(
+                                    prayerTimeByDate = prTm,
+                                    prayerTimes = cachedPrayerTimes,
+                                    isLoading = false
+                                )
+                            }
+                            return@onEach
+                        }
+                    }
+                }
+            }.launchIn(viewModelScope)
+            delay(100)
             val isOnline = isNetworkAvailable()
 
             onEvent(PrayerTimesEvent.OnIsOnlineStateChange(isOnline))
 
-            if (cachedPrayerTimes != null) {
-                // Update UI with cached data first
-                _state.update {
-                    it.copy(
-                        prayerTimes = cachedPrayerTimes,
-                        isLoading = false
-                    )
-                }
-            }
-
-            // If we have internet connection, fetch fresh data
-            if (isOnline) {
+            if (isOnline && _state.value.prayerTimes.isNotEmpty()) {
                 getPrayerTimesFromNetwork()
-            } else {
-                // If no internet and we have cached data, use it
-                if (cachedPrayerTimes != null) {
-                    onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
-                } else {
-                    // No internet and no cached data
-                    onEvent(
-                        PrayerTimesEvent.OnGetPrayerTimesStateChange(
-                            GetPrayerTimesState(
-                                error = "No internet connection and no cached data available"
-                            )
-                        )
-                    )
-                    onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
+                delay(100)
+                if (_state.value.prayerTimesState.response != null) {
+                    getPrayerTimesFromDbUseCase.invoke(_state.value.dateState)
+                        .onEach { cachedPrayerTimes ->
+                            if (cachedPrayerTimes != emptyList<PrayerTimesEntity>()) {
+                                cachedPrayerTimes.forEach { prTm ->
+                                    if (prTm.date == _state.value.dateState.toMMDDYYYY()) {
+                                        _state.update {
+                                            it.copy(
+                                                prayerTimeByDate = prTm,
+                                                prayerTimes = cachedPrayerTimes,
+                                                isLoading = false
+                                            )
+                                        }
+                                        return@onEach
+                                    }
+                                }
+                            }
+                        }.launchIn(viewModelScope)
                 }
+            } else {
+                getPrayerTimesFromDbUseCase.invoke(_state.value.dateState)
+                    .onEach { cachedPrayerTimes ->
+
+                        if (cachedPrayerTimes != emptyList<PrayerTimesEntity>()) {
+                            onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
+                        } else {
+                            onEvent(
+                                PrayerTimesEvent.OnGetPrayerTimesStateChange(
+                                    GetPrayerTimesState(
+                                        error = "No internet connection and no cached data available"
+                                    )
+                                )
+                            )
+                            onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
+                        }
+                    }.launchIn(viewModelScope)
             }
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getPrayerTimesFromNetwork() {
         getPrayerTimesUseCase.invoke(
             _state.value.dateState.toMMDDYYYY().toMMDDYYYY().year,

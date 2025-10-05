@@ -21,7 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.maxkeppeker.sheets.core.models.base.rememberSheetState
-import toCurrentInMillis
+import com.ahrorovk.core.toCurrentInMillis
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

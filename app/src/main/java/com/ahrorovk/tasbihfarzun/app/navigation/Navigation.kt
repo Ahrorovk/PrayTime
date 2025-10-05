@@ -17,7 +17,7 @@ import com.ahrorovk.prayertimes.prayer_times.PrayerTimesScreen
 import com.ahrorovk.tasbihfarzun.app.navigation.components.PrayerfulPathBottomBar
 import com.ahrorovk.zikr.zikr.ZikrScreen
 import com.ahrorovk.zikr.zikr.ZikrViewModel
-import toCurrentInMillis
+import com.ahrorovk.core.toCurrentInMillis
 import java.time.LocalDate
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "NewApi")

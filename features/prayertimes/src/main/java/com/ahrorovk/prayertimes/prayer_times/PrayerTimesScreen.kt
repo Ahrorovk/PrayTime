@@ -72,7 +72,7 @@ fun PrayerTimesScreen(
                 )
             }
 
-            state.prayerTimes?.let { resp ->
+            state.prayerTimeByDate?.let { resp ->
                 Row(
                     Modifier
                         .fillMaxWidth()

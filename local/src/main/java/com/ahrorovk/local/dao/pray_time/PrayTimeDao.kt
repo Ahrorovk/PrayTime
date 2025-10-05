@@ -9,5 +9,5 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PrayTimeDao : BaseDao<PrayerTimesEntity> {
     @Query("SELECT * FROM ${PrayerTimesEntity.TABLE_NAME} WHERE date=:date")
-    suspend fun getPrayTimesFromDb(date:String): PrayerTimesEntity?
+    fun getPrayTimesFromDb(date:String): Flow<List<PrayerTimesEntity>>
 }

@@ -8,7 +8,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.ahrorovk.core.model.Time
 import com.ahrorovk.model.local.pray_time.PrayerTimesEntity
-import toMMDDYYYY
 import java.text.SimpleDateFormat
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
