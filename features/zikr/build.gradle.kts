@@ -1,8 +1,9 @@
 plugins {
-    id(GradlePlugin.ANDROID_LIBRARY)
-    id(GradlePlugin.ORG_KOTLIN_ANDROID)
-    id(GradlePlugin.KAPT)
-    id(GradlePlugin.DAGGER_HILT)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -12,7 +13,6 @@ android {
     defaultConfig {
         minSdk = 24
         targetSdk = 34
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -25,75 +25,76 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = Versions.compose.compose
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
     }
 }
 
 dependencies {
+    // Project modules
+    implementation(project(":data"))
+    implementation(project(":common:components"))
+    implementation(project(":core"))
+    implementation(project(":domain"))
+    implementation(project(":model"))
 
-    implementation(project(mapOf("path" to ":data")))
-    implementation(project(mapOf("path" to ":common:components")))
-    implementation(project(mapOf("path" to ":core")))
-    implementation(project(mapOf("path" to ":domain")))
-    implementation(project(mapOf("path" to ":model")))
+    // Android Core
+    implementation(libs.android.lifecycle.runtime)
+    implementation(libs.android.lifecycle.viewmodel)
+    implementation(libs.android.datastore)
+    implementation(libs.android.navigation.runtime)
+    implementation(libs.android.core.ktx)
+    implementation(libs.android.material)
 
-    // Android
-    implementation(Dependencies.android.lifecycleRuntime)
-    implementation(Dependencies.android.navigationRuntime)
-    implementation(Dependencies.android.dataStore)
-    implementation(Dependencies.android.lifecycleViewmodel)
-    implementation(Dependencies.android.ktx)
-    implementation(Dependencies.android.material)
     // Compose
-    implementation(Dependencies.compose.icons)
-    implementation(Dependencies.compose.material)
-    implementation(Dependencies.compose.activity)
-    implementation(Dependencies.compose.navigation)
-    implementation(Dependencies.compose.viewModel)
-    implementation(Dependencies.compose.constraintLayout)
-    implementation(Dependencies.compose.uiToolingPreview)
-    // implementation(Dependencies.compose.ui)
-    //implementation(Dependencies.compose.uiTest)
-    // Hilt
-    implementation(Dependencies.android.hilt.android)
-    implementation("androidx.test:monitor:1.7.2")
-    implementation("androidx.test.ext:junit-ktx:1.2.1")
-    implementation("androidx.compose.material3:material3-android:1.3.1")
-    kapt(Dependencies.android.hilt.androidCompiler)
-    kapt(Dependencies.android.hilt.compiler)
-    implementation(Dependencies.android.hilt.navigation)
-    //Coroutines
-    implementation(Dependencies.coroutines.android)
-    implementation(Dependencies.coroutines.test)
-    implementation(Dependencies.coroutines.core)
-    // Paging
-    implementation(Dependencies.paging.compose)
-    implementation(Dependencies.paging.runtime)
-    // Accompanist
-    implementation(Dependencies.accompanist.animation)
-    implementation(Dependencies.accompanist.flowRow)
-    implementation(Dependencies.accompanist.swipeRefresh)
-    implementation(Dependencies.accompanist.systemUiController)
-    // Pretty time
-    implementation(Dependencies.android.prettyTime)
-    // DataStore
-    implementation(Dependencies.android.dataStore)
-    // Date/Time Picker
-    implementation ("com.maxkeppeler.sheets-compose-dialogs:core:1.0.2")
-    implementation ("com.maxkeppeler.sheets-compose-dialogs:calendar:1.0.2")
-    implementation ("com.maxkeppeler.sheets-compose-dialogs:clock:1.0.2")
+    implementation(libs.compose.ui)
+    implementation(libs.compose.material3)
+implementation(libs.compose.material)
+    implementation(libs.compose.activity)
+    implementation(libs.compose.navigation)
+    implementation(libs.compose.viewmodel)
+    implementation(libs.compose.constraint)
+    implementation(libs.compose.tooling.preview)
 
+    // Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.hilt.navigation)
+
+    // Coroutines
+    implementation(libs.coroutines.android)
+    implementation(libs.coroutines.test)
+    implementation(libs.coroutines.core)
+
+    // Paging
+    implementation(libs.paging.compose)
+    implementation(libs.paging.runtime)
+
+    // Accompanist
+    implementation(libs.accompanist.animation)
+    implementation(libs.accompanist.flowrow)
+    implementation(libs.accompanist.swiperefresh)
+    implementation(libs.accompanist.systemui)
     implementation("com.google.accompanist:accompanist-pager:0.25.1")
     implementation("com.google.accompanist:accompanist-pager-indicators:0.25.1")
+
+    // Other
+    implementation(libs.android.prettytime)
+
+    // Sheets Compose Dialogs
+    implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.0.2")
+    implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.0.2")
+    implementation("com.maxkeppeler.sheets-compose-dialogs:clock:1.0.2")
+
+    // Test
+    testImplementation(libs.test.junit)
+    androidTestImplementation(libs.test.junit.ext)
+    androidTestImplementation(libs.test.espresso)
 }

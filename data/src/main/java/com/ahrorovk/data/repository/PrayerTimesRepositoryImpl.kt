@@ -17,6 +17,18 @@ class PrayerTimesRepositoryImpl(
     override fun getPrayTimesFromDbByDate(date: String): Flow<List<PrayerTimesEntity>> =
         prayTimeDao.getPrayTimesFromDb(date)
 
+    override suspend fun getPrayerTimesByLocation(
+        year: Int,
+        month: Int,
+        latitude: Int,
+        longitude: Int
+    ): GetPrayerTimesResponse = prayerTimesApi.getPrayerTimesByLocation(
+        year,
+        month,
+        latitude,
+        longitude
+    )
+
     override suspend fun insertPrayTime(prayerTimesEntity: List<PrayerTimesEntity>) =
         prayTimeDao.insert(prayerTimesEntity)
 

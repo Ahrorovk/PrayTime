@@ -3,7 +3,7 @@ package com.ahrorovk.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,6 +22,6 @@ fun DatesItem(
     ) {
         Text(date)
         Spacer(Modifier.padding(3.dp))
-        Text(islamicDate, color = MaterialTheme.colors.onSurface)
+        Text(islamicDate, color = MaterialTheme.colorScheme.onSurface)
     }
 }

@@ -1,7 +1,8 @@
 plugins {
-    id(GradlePlugin.ANDROID_LIBRARY)
-    id(GradlePlugin.ORG_KOTLIN_ANDROID)
-    id(GradlePlugin.KAPT)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -24,32 +25,37 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
 dependencies {
-//    implementation(project(mapOf("path" to ":core")))
+    // Ktor
+    implementation(libs.ktor.serialization)
 
-    //Ktor
-    implementation(Dependencies.network.ktor.serialization)
     // Hilt
-    implementation(Dependencies.android.hilt.android)
-    kapt(Dependencies.android.hilt.androidCompiler)
-    kapt(Dependencies.android.hilt.compiler)
-    implementation(Dependencies.android.hilt.navigation)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.hilt.navigation)
+
     // Room
-    implementation(Dependencies.android.room.ktx)
-    implementation(Dependencies.android.room.runtime)
-    kapt(Dependencies.android.room.compiler)
-    implementation(Dependencies.android.room.paging)
-    // Retrofit
-    implementation(Dependencies.network.retrofit.base)
-    implementation(Dependencies.network.retrofit.gsonConverter)
-    implementation(Dependencies.network.okHttp.base)
-    implementation(Dependencies.network.okHttp.interceptor)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+    implementation(libs.room.paging)
+
+    // Network
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.interceptor)
+
+    // Test
+    testImplementation(libs.test.junit)
+    androidTestImplementation(libs.test.junit.ext)
+    androidTestImplementation(libs.test.espresso)
 }

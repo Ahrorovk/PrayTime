@@ -60,12 +60,19 @@ fun dateFormatter(state: Int): String {
     else "$state"
 }
 
-fun getListOfTimes(times: PrayerTimesEntity) = listOf(
+fun getListOfTimeStates(times: PrayerTimesEntity) = listOf(
     Time("Fajr", times.fajrTime, R.drawable.fajr),
     Time("Zuhr", times.zuhrTime, R.drawable.zuhr),
     Time("Asr", times.asrTime, R.drawable.asr),
     Time("Maghrib", times.magribTime, R.drawable.maghrib),
     Time("Isha", times.ishaTime, R.drawable.isha)
+)
+fun getListOfTimes(times: PrayerTimesEntity) = listOf(
+     times.fajrTime,
+     times.zuhrTime,
+     times.asrTime,
+     times.magribTime,
+     times.ishaTime
 )
 
 @SuppressLint("NewApi")
