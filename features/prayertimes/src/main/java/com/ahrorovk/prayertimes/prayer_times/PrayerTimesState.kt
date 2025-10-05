@@ -5,7 +5,6 @@ import com.ahrorovk.core.model.Hadith
 import com.ahrorovk.core.model.Time
 import com.ahrorovk.data.states.GetPrayerTimesState
 import com.ahrorovk.model.local.pray_time.PrayerTimesEntity
-
 data class PrayerTimesState(
     val prayerTimesState: GetPrayerTimesState = GetPrayerTimesState(),
     val selectedCity: String = "Khujand",
@@ -16,7 +15,8 @@ data class PrayerTimesState(
     val locationState: String = "Location",
     val isLoading: Boolean = false,
     val isOnline: Boolean = true,
-    val prayerTimes: PrayerTimesEntity? = null,
+    val prayerTimes: List<PrayerTimesEntity> = emptyList(),
+    val prayerTimeByDate: PrayerTimesEntity? = null,
     val mediaPlayer: MediaPlayer? = null,
     val selectedUpcomingPrayerTimeInd: Int = 0,
     val upcomingPrayerTimes: List<Time> = emptyList(),

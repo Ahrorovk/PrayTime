@@ -1,3 +1,5 @@
+package com.ahrorovk.core
+
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
