@@ -14,4 +14,11 @@ interface PrayerTimesApi {
         @Query("address") address: String,
         @Query("school") school: Int
     ): GetPrayerTimesResponse
+    @GET("calendar/{year}/{month}")
+    suspend fun getPrayerTimesByLocation(
+        @Path("year") year: Int,
+        @Path("month") month: Int,
+        @Query("latitude") latitude: Int,
+        @Query("longitude") longitude: Int
+    ): GetPrayerTimesResponse
 }

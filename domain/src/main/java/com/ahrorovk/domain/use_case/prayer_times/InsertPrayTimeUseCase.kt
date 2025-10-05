@@ -1,5 +1,6 @@
 package com.ahrorovk.domain.use_case.prayer_times
 
+import android.util.Log
 import com.ahrorovk.domain.repository.PrayerTimesRepository
 import com.ahrorovk.model.dto.prayer_times.PrayerTimesDto
 import com.ahrorovk.model.dto.toPrayTimeEntity
@@ -12,10 +13,16 @@ class InsertPrayTimeUseCase @Inject constructor(
 ) {
     val prayerTimes = mutableListOf<PrayerTimesEntity>()
     suspend operator fun invoke(prayerTimesDto: List<PrayerTimesDto>) {
-        prayerTimesDto.forEach {
-            prayerTimes.add(it.toPrayTimeEntity())
+        try {
+            prayerTimesDto.forEach {
+                prayerTimes.add(it.toPrayTimeEntity())
+            }
+            delay(100)
+
+            repository.insertPrayTime(prayerTimes)
+            Log.e("TAG"," InsertPrayTimeUseCaseSuccess- $prayerTimes")
+        }catch (e:Exception){
+            Log.e("TAG"," InsertPrayTimeUseCase: ${e.message} ")
         }
-        delay(100)
-        repository.insertPrayTime(prayerTimes)
     }
 }

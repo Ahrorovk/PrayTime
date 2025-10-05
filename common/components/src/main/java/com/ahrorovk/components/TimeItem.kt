@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.VolumeUp
@@ -36,8 +36,8 @@ fun TimeItem(
             .padding(horizontal = 12.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(
-                if (time.isTime) MaterialTheme.colors.surface
-                else MaterialTheme.colors.secondary
+                if (time.isTime) MaterialTheme.colorScheme.surface
+                else MaterialTheme.colorScheme.secondary
             )
     ) {
         Row(

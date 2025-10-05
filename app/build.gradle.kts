@@ -1,10 +1,10 @@
 plugins {
-    id(GradlePlugin.ANDROID_APPLICATION)
-    id(GradlePlugin.KOTLIN_ANDROID)
-    id(GradlePlugin.KAPT)
-    id(GradlePlugin.DAGGER_HILT)
-    id("com.google.gms.google-services")
-//    id("com.google.firebase.crashlytics")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -27,23 +27,23 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
-            proguardFiles (getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = Versions.compose.compose
-    }
-    packagingOptions {
+    packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
@@ -51,84 +51,92 @@ android {
 }
 
 dependencies {
-    // Android
-    implementation(Dependencies.android.lifecycleRuntime)
-    implementation(Dependencies.android.navigationRuntime)
-    implementation(Dependencies.android.dataStore)
-    implementation(Dependencies.android.lifecycleViewmodel)
-    implementation(Dependencies.android.ktx)
-    implementation(Dependencies.android.material)
-    //Coroutines
-    implementation(Dependencies.coroutines.android)
-    implementation(Dependencies.coroutines.core)
-    implementation(Dependencies.coroutines.test)
-    // Hilt
-    implementation(Dependencies.android.hilt.android)
-    implementation(project(mapOf("path" to ":core")))
-    implementation(project(mapOf("path" to ":features:prayertimes")))
-    implementation(project(mapOf("path" to ":features:settings")))
-    implementation(project(mapOf("path" to ":features:zikr")))
-    implementation(project(mapOf("path" to ":local")))
-    implementation(project(mapOf("path" to ":data")))
+    // Project modules
+    implementation(project(":core"))
+    implementation(project(":domain"))
+    implementation(project(":data"))
     implementation(project(":model"))
-    kapt(Dependencies.android.hilt.androidCompiler)
-    kapt(Dependencies.android.hilt.compiler)
-    implementation(Dependencies.android.hilt.navigation)
-    // Room
-    implementation(Dependencies.android.room.ktx)
-    implementation(Dependencies.android.room.runtime)
-    kapt(Dependencies.android.room.compiler)
-    implementation(Dependencies.android.room.paging)
-    // Paging
-    implementation(Dependencies.paging.compose)
-    implementation(Dependencies.paging.runtime)
-    // Retrofit
-    implementation(Dependencies.network.retrofit.base)
-    implementation(Dependencies.network.retrofit.gsonConverter)
-    implementation(Dependencies.network.okHttp.base)
-    implementation(Dependencies.network.okHttp.interceptor)
+    implementation(project(":local"))
+    implementation(project(":remote"))
+    implementation(project(":common:components"))
+    implementation(project(":features:prayertimes"))
+    implementation(project(":features:zikr"))
+    implementation(project(":features:settings"))
+
+    // Android Core
+    implementation(libs.android.lifecycle.runtime)
+    implementation(libs.android.lifecycle.viewmodel)
+    implementation(libs.android.material)
+    implementation(libs.android.core.ktx)
+    implementation(libs.android.datastore)
+    implementation(libs.android.navigation.runtime)
+
     // Compose
-    implementation(Dependencies.compose.icons)
-    implementation(Dependencies.compose.material)
-    implementation(Dependencies.compose.activity)
-    implementation(Dependencies.compose.navigation)
-    implementation(Dependencies.compose.constraintLayout)
-    implementation(Dependencies.compose.uiToolingPreview)
-    //implementation(Dependencies.compose.ui)
-    //implementation(Dependencies.compose.uiTest)
-    // Test
-    implementation(Dependencies.test.core)
-    implementation(Dependencies.test.coreKtx)
-    implementation(Dependencies.test.junit)
-    // Accompanist
-    implementation(Dependencies.accompanist.animation)
-    implementation(Dependencies.accompanist.flowRow)
-    implementation(Dependencies.accompanist.systemUiController)
-    //WebView
-    implementation ("com.google.accompanist:accompanist-webview:0.31.4-beta")
-    implementation ("androidx.webkit:webkit:1.7.0")
-    // Pretty time
-    implementation(Dependencies.android.prettyTime)
-    implementation(Dependencies.android.dataStore)
-    implementation ("com.google.accompanist:accompanist-navigation-material:0.30.0")
+    implementation(libs.compose.ui)
+    implementation(libs.compose.material3)
+implementation(libs.compose.material)
+    implementation(libs.compose.activity)
+    implementation(libs.compose.navigation)
+    implementation(libs.compose.viewmodel)
+    implementation(libs.compose.constraint)
+    implementation(libs.compose.tooling.preview)
+    implementation(libs.compose.icons)
+
+    // Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.hilt.navigation)
+
+    // Room
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+    implementation(libs.room.paging)
+
+    // Paging
+    implementation(libs.paging.compose)
+    implementation(libs.paging.runtime)
+
+    // Network
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.interceptor)
+
     // Ktor
-    implementation(Dependencies.network.ktor.core)
-    implementation(Dependencies.network.ktor.cio)
-    implementation(Dependencies.network.ktor.android)
-    implementation(Dependencies.network.ktor.serialization)
-    implementation(Dependencies.network.ktor.websockets)
-    implementation(Dependencies.network.ktor.logging)
-    implementation("ch.qos.logback:logback-classic:1.2.6")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
-    implementation(Dependencies.imageLoader.compose)
-    implementation(Dependencies.imageLoader.gif)
-    // WorkManager with Coroutines
-    implementation("androidx.work:work-runtime-ktx:2.7.1")
-    // Ads
-//    implementation(Dependencies.googleServices.ads)
-    //Firebase
-//    implementation("com.google.firebase:firebase-crashlytics-buildtools:2.9.4")
-//    implementation(platform("com.google.firebase:firebase-bom:31.3.0"))
-//    implementation("com.google.firebase:firebase-analytics-ktx")
-//    implementation("com.google.firebase:firebase-crashlytics-ktx")
+    implementation(libs.ktor.core)
+    implementation(libs.ktor.cio)
+    implementation(libs.ktor.android)
+    implementation(libs.ktor.serialization)
+    implementation(libs.ktor.websockets)
+    implementation(libs.ktor.logging)
+    implementation(libs.logback.classic)
+    implementation(libs.kotlinx.serialization.json)
+
+    // Coroutines
+    implementation(libs.coroutines.android)
+    implementation(libs.coroutines.core)
+    implementation(libs.coroutines.test)
+
+    // Image Loading
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
+    implementation(libs.coil.svg)
+
+    // Accompanist
+    implementation(libs.accompanist.animation)
+    implementation(libs.accompanist.flowrow)
+    implementation(libs.accompanist.systemui)
+    implementation(libs.accompanist.swiperefresh)
+    implementation(libs.accompanist.permissions)
+    // Other
+    implementation(libs.android.prettytime)
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
+
+    // Test
+    testImplementation(libs.test.junit)
+    androidTestImplementation(libs.test.junit.ext)
+    androidTestImplementation(libs.test.espresso)
+    debugImplementation(libs.compose.tooling)
+    debugImplementation(libs.compose.manifest)
 }

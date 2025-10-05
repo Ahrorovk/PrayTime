@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -62,8 +62,8 @@ fun RowScope.BottomNavItem(
                 contentDescription = "BottomNavIcon"
             )
         },
-        selectedContentColor = MaterialTheme.colors.surface,
-        unselectedContentColor = MaterialTheme.colors.onBackground
+        selectedContentColor = MaterialTheme.colorScheme.surface,
+        unselectedContentColor = MaterialTheme.colorScheme.onBackground
     )
 }
 
