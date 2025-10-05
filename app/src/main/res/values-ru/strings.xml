@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Prayerful Path</string>
+    <string name="location">ЛОКАЦИЯ</string>
+    <string name="system_settings">Системные Настройки</string>
+    <string name="prayer_time">Время Намаза</string>
+    <string name="notification_and_sound">Уведомления и Звуки</string>
+    <string name="language">Язык</string>
+</resources>
