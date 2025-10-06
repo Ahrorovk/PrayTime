@@ -18,7 +18,7 @@ interface PrayerTimesApi {
     suspend fun getPrayerTimesByLocation(
         @Path("year") year: Int,
         @Path("month") month: Int,
-        @Query("latitude") latitude: Int,
-        @Query("longitude") longitude: Int
+        @Query("latitude") latitude: Double,
+        @Query("longitude") longitude: Double
     ): GetPrayerTimesResponse
 }

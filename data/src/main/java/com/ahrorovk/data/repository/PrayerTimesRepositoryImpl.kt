@@ -6,10 +6,10 @@ import com.ahrorovk.model.dto.get_prayer_time.GetPrayerTimesResponse
 import com.ahrorovk.model.local.pray_time.PrayerTimesEntity
 import com.ahrorovk.remote.PrayerTimesApi
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-class PrayerTimesRepositoryImpl(
+class PrayerTimesRepositoryImpl @Inject constructor(
     private val prayerTimesApi: PrayerTimesApi,
     private val prayTimeDao: PrayTimeDao
 ) : PrayerTimesRepository {
@@ -20,8 +20,8 @@ class PrayerTimesRepositoryImpl(
     override suspend fun getPrayerTimesByLocation(
         year: Int,
         month: Int,
-        latitude: Int,
-        longitude: Int
+        latitude: Double,
+        longitude: Double
     ): GetPrayerTimesResponse = prayerTimesApi.getPrayerTimesByLocation(
         year,
         month,
