@@ -40,6 +40,7 @@ android {
 dependencies {
     // Project modules
     implementation(project(":core"))
+    implementation(project(":model"))
 
     // Android Core
     implementation(libs.android.lifecycle.runtime)

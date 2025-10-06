@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import com.ahrorovk.core.toCurrentInMillis
 import com.ahrorovk.core.toMMDDYYYY
+import com.ahrorovk.core.toMMDDYYYYLD
 import com.ahrorovk.domain.use_case.prayer_times.GetPrayerTimesByLocationUseCase
 import java.time.LocalDate
 import javax.inject.Inject
@@ -245,8 +246,8 @@ class PrayTimeViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getPrayerTimesFromNetwork() {
         getPrayerTimesUseCase.invoke(
-            _state.value.dateState.toMMDDYYYY().toMMDDYYYY().year,
-            _state.value.dateState.toMMDDYYYY().toMMDDYYYY().monthValue,
+            _state.value.dateState.toMMDDYYYYLD().year,
+            _state.value.dateState.toMMDDYYYYLD().monthValue,
             "${_state.value.selectedCity}, ${_state.value.selectedCountry}",
             _state.value.selectedSchool
         )
@@ -310,8 +311,8 @@ class PrayTimeViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getPrayerTimesByLocationFromNetwork() {
         getPrayerTimesByLocationUseCase.invoke(
-            _state.value.dateState.toMMDDYYYY().toMMDDYYYY().year,
-            _state.value.dateState.toMMDDYYYY().toMMDDYYYY().monthValue,
+            _state.value.dateState.toMMDDYYYYLD().year,
+            _state.value.dateState.toMMDDYYYYLD().monthValue,
             _state.value.latitude,
             _state.value.longitude
         )
