@@ -2,6 +2,7 @@ package com.ahrorovk.data.repository
 
 import android.Manifest
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
@@ -12,11 +13,12 @@ import com.ahrorovk.model.dto.get_prayer_time.Location
 import com.ahrorovk.model.location.LocationNameResponse
 import com.ahrorovk.remote.LocationApi
 import com.google.android.gms.location.LocationServices
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class LocationRepositoryImpl @Inject constructor(
     private val locationApi: LocationApi,
-    private val context: Context
+    private val context: Application
 ) : LocationRepository {
     @RequiresPermission(anyOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun getActualLocation(): Location {
@@ -59,4 +61,7 @@ class LocationRepositoryImpl @Inject constructor(
         latitude: Double,
         longitude: Double
     ): LocationNameResponse = locationApi.getLocationName(latitude, longitude)
+
+    override suspend fun getLocationBySearch(city: String): LocationNameResponse =
+        locationApi.getLocationBySearch(city)
 }

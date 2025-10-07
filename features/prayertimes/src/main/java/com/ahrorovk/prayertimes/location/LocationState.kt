@@ -8,5 +8,6 @@ data class LocationState(
     val longitude: Double = 0.0,
     val selectedLocation: Location? = null,
     val currLocationState: CurrLocationState = CurrLocationState(),
-    val locations: List<Location> = emptyList()
+    val locations: List<Location> = emptyList(),
+    val searchQuery: String = ""
 )

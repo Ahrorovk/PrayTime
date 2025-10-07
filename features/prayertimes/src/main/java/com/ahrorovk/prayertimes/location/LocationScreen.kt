@@ -2,11 +2,21 @@ package com.ahrorovk.prayertimes.location
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Text
+import androidx.compose.material.TextField
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.ahrorovk.components.CityPickerItem
+import com.ahrorovk.model.dto.toLocationName
 
 @Composable
 fun LocationScreen(
@@ -15,11 +25,31 @@ fun LocationScreen(
 ) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         LazyColumn(Modifier.fillMaxSize()) {
-            items(state.locations.size) { index ->
-                val location = state.locations[index]
-                CityPickerItem(location = location) {
-                    onEvent(LocationEvent.OnSelectedLocation(location))
-                }
+            item {
+                TextField(
+                    value = state.searchQuery,
+                    onValueChange = {
+                        onEvent(LocationEvent.OnSearchQueryChange(it))
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    placeholder = {
+                        Text(text = "Search city")
+                    },
+                    colors = TextFieldDefaults.textFieldColors(
+                        disabledTextColor = Color.Transparent,
+                        backgroundColor = Color.Transparent
+                    )
+                )
+            }
+            itemsIndexed(state.locations.sortedBy { it.country }) { ind, location ->
+                if (location.toLocationName().toLowerCase()
+                        .contains(state.searchQuery.toLowerCase())
+                )
+                    CityPickerItem(location = location) {
+                        onEvent(LocationEvent.OnSelectedLocation(location))
+                    }
             }
 
         }
