@@ -1,10 +1,14 @@
 package com.ahrorovk.prayertimes.prayer_times
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ahrorovk.core.DataStoreManager
@@ -29,8 +33,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
-import toCurrentInMillis
-import toMMDDYYYY
+import com.ahrorovk.core.toCurrentInMillis
+import com.ahrorovk.core.toMMDDYYYY
+import com.ahrorovk.core.toMMDDYYYYLD
+import com.ahrorovk.domain.use_case.prayer_times.GetPrayerTimesByLocationUseCase
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -38,6 +44,7 @@ import javax.inject.Inject
 class PrayTimeViewModel @Inject constructor(
     private val dataStoreManager: DataStoreManager,
     private val getPrayerTimesUseCase: GetPrayerTimesUseCase,
+    private val getPrayerTimesByLocationUseCase: GetPrayerTimesByLocationUseCase,
     private val insertPrayTimeUseCase: InsertPrayTimeUseCase,
     private val getPrayerTimesFromDbUseCase: GetPrayerTimesFromDbUseCase,
     @ApplicationContext private val context: Context
@@ -80,21 +87,20 @@ class PrayTimeViewModel @Inject constructor(
 
             PrayerTimesEvent.GetPrayerTimesFromDb -> {
                 getPrayerTimesJob?.cancel()
-                viewModelScope.launch {
-                    val prayerTimes: PrayerTimesEntity? = getPrayerTimesFromDbUseCase.invoke(
-                        _state.value.dateState
-                    )
-                    if (prayerTimes == null) {
+                getPrayerTimesFromDbUseCase.invoke(
+                    _state.value.dateState
+                ).onEach { prTm ->
+                    if (prTm.isEmpty()) {
                         onEvent(PrayerTimesEvent.OnIsLoadingStateChange(true))
                     } else {
                         onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
                     }
                     _state.update {
                         it.copy(
-                            prayerTimes = prayerTimes
+                            prayerTimes = prTm
                         )
                     }
-                }
+                }.launchIn(viewModelScope)
             }
 
             is PrayerTimesEvent.OnMediaPlayerChange -> {
@@ -144,15 +150,18 @@ class PrayTimeViewModel @Inject constructor(
     }
 
     private fun insertPrayerTimes(prayerTimesDto: List<PrayerTimesDto>) {
-        _state.value.prayerTimesState.response?.let {
+        if (_state.value.prayerTimesState.response != null) {
             viewModelScope.launch {
                 insertPrayTimeUseCase.invoke(
                     prayerTimesDto
                 )
             }
+        } else {
+            Log.e("TAG", "ResponseNull")
         }
     }
 
+    @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     private fun isNetworkAvailable(): Boolean {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -169,48 +178,76 @@ class PrayTimeViewModel @Inject constructor(
     @SuppressLint("NewApi")
     private fun getPrayerTimes() {
         viewModelScope.launch {
-            // First try to get data from Room
-            val cachedPrayerTimes = getPrayerTimesFromDbUseCase.invoke(_state.value.dateState)
+            getPrayerTimesFromDbUseCase.invoke(_state.value.dateState).onEach { cachedPrayerTimes ->
+                if (cachedPrayerTimes != emptyList<PrayerTimesEntity>()) {
+                    cachedPrayerTimes.forEach { prTm ->
+                        if (prTm.date == _state.value.dateState.toMMDDYYYY()) {
+                            _state.update {
+                                it.copy(
+                                    prayerTimeByDate = prTm,
+                                    prayerTimes = cachedPrayerTimes,
+                                    isLoading = false
+                                )
+                            }
+                            return@onEach
+                        }
+                    }
+                }
+            }.launchIn(viewModelScope)
+            delay(100)
             val isOnline = isNetworkAvailable()
 
+            Log.e("TAG", "ONLINE-> $isOnline")
             onEvent(PrayerTimesEvent.OnIsOnlineStateChange(isOnline))
 
-            if (cachedPrayerTimes != null) {
-                // Update UI with cached data first
-                _state.update {
-                    it.copy(
-                        prayerTimes = cachedPrayerTimes,
-                        isLoading = false
-                    )
-                }
-            }
-
-            // If we have internet connection, fetch fresh data
-            if (isOnline) {
+            if (isOnline && _state.value.prayerTimes.isEmpty()) {
                 getPrayerTimesFromNetwork()
-            } else {
-                // If no internet and we have cached data, use it
-                if (cachedPrayerTimes != null) {
-                    onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
-                } else {
-                    // No internet and no cached data
-                    onEvent(
-                        PrayerTimesEvent.OnGetPrayerTimesStateChange(
-                            GetPrayerTimesState(
-                                error = "No internet connection and no cached data available"
-                            )
-                        )
-                    )
-                    onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
+                delay(100)
+                if (_state.value.prayerTimesState.response != null) {
+                    getPrayerTimesFromDbUseCase.invoke(_state.value.dateState)
+                        .onEach { cachedPrayerTimes ->
+                            if (cachedPrayerTimes != emptyList<PrayerTimesEntity>()) {
+                                cachedPrayerTimes.forEach { prTm ->
+                                    if (prTm.date == _state.value.dateState.toMMDDYYYY()) {
+                                        _state.update {
+                                            it.copy(
+                                                prayerTimeByDate = prTm,
+                                                prayerTimes = cachedPrayerTimes,
+                                                isLoading = false
+                                            )
+                                        }
+                                        return@onEach
+                                    }
+                                }
+                            }
+                        }.launchIn(viewModelScope)
                 }
+            } else {
+                getPrayerTimesFromDbUseCase.invoke(_state.value.dateState)
+                    .onEach { cachedPrayerTimes ->
+
+                        if (cachedPrayerTimes != emptyList<PrayerTimesEntity>()) {
+                            onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
+                        } else {
+                            onEvent(
+                                PrayerTimesEvent.OnGetPrayerTimesStateChange(
+                                    GetPrayerTimesState(
+                                        error = "No internet connection and no cached data available"
+                                    )
+                                )
+                            )
+                            onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
+                        }
+                    }.launchIn(viewModelScope)
             }
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getPrayerTimesFromNetwork() {
         getPrayerTimesUseCase.invoke(
-            _state.value.dateState.toMMDDYYYY().toMMDDYYYY().year,
-            _state.value.dateState.toMMDDYYYY().toMMDDYYYY().monthValue,
+            _state.value.dateState.toMMDDYYYYLD().year,
+            _state.value.dateState.toMMDDYYYYLD().monthValue,
             "${_state.value.selectedCity}, ${_state.value.selectedCountry}",
             _state.value.selectedSchool
         )
@@ -221,7 +258,6 @@ class PrayTimeViewModel @Inject constructor(
 
                         val prayerTimesDto = mutableListOf<PrayerTimesDto>()
                         response?.data?.forEachIndexed { _, data ->
-                            Log.e("TAG", "SUCCESS_INFORMATION-> $data")
                             prayerTimesDto.add(
                                 PrayerTimesDto(
                                     fajrTime = data.timings.Fajr,
@@ -234,9 +270,6 @@ class PrayTimeViewModel @Inject constructor(
                                 )
                             )
                         }
-                        insertPrayerTimes(prayerTimesDto)
-                        delay(300)
-                        Log.e("TAG", "SUCCESS_INFORMATION-> $response")
                         onEvent(
                             PrayerTimesEvent.OnGetPrayerTimesStateChange(
                                 GetPrayerTimesState(
@@ -244,11 +277,80 @@ class PrayTimeViewModel @Inject constructor(
                                 )
                             )
                         )
+                        insertPrayerTimes(prayerTimesDto)
+                        delay(300)
+                        Log.e("TAG", "SUCCESS_INFORMATION-> $response")
                         onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
                     }
 
                     is Resource.Error -> {
                         onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
+                        Log.e("TAG", "PrayTimeFromNetworkError->${result.message}")
+                        onEvent(
+                            PrayerTimesEvent.OnGetPrayerTimesStateChange(
+                                GetPrayerTimesState(
+                                    error = result.message.toString()
+                                )
+                            )
+                        )
+                    }
+
+                    is Resource.Loading -> {
+                        onEvent(PrayerTimesEvent.OnIsLoadingStateChange(true))
+                        onEvent(
+                            PrayerTimesEvent.OnGetPrayerTimesStateChange(
+                                GetPrayerTimesState(
+                                    isLoading = true
+                                )
+                            )
+                        )
+                    }
+                }
+            }.launchIn(viewModelScope)
+    }
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun getPrayerTimesByLocationFromNetwork() {
+        getPrayerTimesByLocationUseCase.invoke(
+            _state.value.dateState.toMMDDYYYYLD().year,
+            _state.value.dateState.toMMDDYYYYLD().monthValue,
+            _state.value.latitude,
+            _state.value.longitude
+        )
+            .onEach { result: Resource<GetPrayerTimesResponse> ->
+                when (result) {
+                    is Resource.Success -> {
+                        val response: GetPrayerTimesResponse? = result.data
+
+                        val prayerTimesDto = mutableListOf<PrayerTimesDto>()
+                        response?.data?.forEachIndexed { _, data ->
+                            prayerTimesDto.add(
+                                PrayerTimesDto(
+                                    fajrTime = data.timings.Fajr,
+                                    zuhrTime = data.timings.Dhuhr,
+                                    asrTime = data.timings.Asr,
+                                    magribTime = data.timings.Maghrib,
+                                    ishaTime = data.timings.Isha,
+                                    islamicDate = data.date.hijri.date,
+                                    date = data.date.gregorian.date
+                                )
+                            )
+                        }
+                        onEvent(
+                            PrayerTimesEvent.OnGetPrayerTimesStateChange(
+                                GetPrayerTimesState(
+                                    response = response
+                                )
+                            )
+                        )
+                        insertPrayerTimes(prayerTimesDto)
+                        delay(300)
+                        Log.e("TAG", "SUCCESS_INFORMATION-> $response")
+                        onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
+                    }
+
+                    is Resource.Error -> {
+                        onEvent(PrayerTimesEvent.OnIsLoadingStateChange(false))
+                        Log.e("TAG", "PrayTimeFromNetworkError->${result.message}")
                         onEvent(
                             PrayerTimesEvent.OnGetPrayerTimesStateChange(
                                 GetPrayerTimesState(

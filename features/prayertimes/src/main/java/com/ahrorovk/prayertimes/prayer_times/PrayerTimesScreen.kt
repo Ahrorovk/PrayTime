@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,6 +30,9 @@ import com.ahrorovk.components.DailyHadithItem
 import com.ahrorovk.components.DatesItem
 import com.ahrorovk.components.LocationItem
 import com.ahrorovk.components.TimeItem
+import com.ahrorovk.core.findMinDifference
+import com.ahrorovk.core.getListOfTimeStates
+import com.ahrorovk.core.getListOfTimes
 import java.time.LocalTime
 
 @SuppressLint("NewApi")
@@ -47,6 +50,9 @@ fun PrayerTimesScreen(
             Log.e("TAG", "DB-> ${state.prayerTimesState.error}")
             Toast.makeText(context, state.prayerTimesState.error, Toast.LENGTH_SHORT).show()
         }
+    }
+    LaunchedEffect(true) {
+
     }
 
     Box(
@@ -68,11 +74,11 @@ fun PrayerTimesScreen(
                         .fillMaxWidth()
                         .padding(8.dp),
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colors.error
+                    color = MaterialTheme.colorScheme.error
                 )
             }
 
-            state.prayerTimes?.let { resp ->
+            state.prayerTimeByDate?.let { resp ->
                 Row(
                     Modifier
                         .fillMaxWidth()
@@ -96,16 +102,24 @@ fun PrayerTimesScreen(
                 }
 
                 LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
-                    items(state.upcomingPrayerTimes) {
-                        TimeItem(it) {
-                            // Handle time item click if needed
+                    itemsIndexed(getListOfTimeStates(state.prayerTimeByDate)) { ind, it ->
+                        TimeItem(
+                            it.copy(
+                                isTime = ind == findMinDifference(
+                                    LocalTime.now(),
+                                    getListOfTimes(state.prayerTimeByDate)
+                                )
+                            )
+                        ) {
+                            onEvent(PrayerTimesEvent.OnSelectedUpcomingPrayerTimeChange(ind))
+
                         }
                         Spacer(modifier = Modifier.padding(12.dp))
                     }
                 }
             }
 
-            if (state.prayerTimes == null && !state.isLoading && state.prayerTimesState.error.isNotEmpty()) {
+            if (state.prayerTimesState.error.isNotEmpty()) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -115,7 +129,7 @@ fun PrayerTimesScreen(
                     Text(
                         text = state.prayerTimesState.error,
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colors.error
+                        color = MaterialTheme.colorScheme.error
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))

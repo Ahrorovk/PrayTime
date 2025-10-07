@@ -1,8 +1,9 @@
 plugins {
-    id(GradlePlugin.ANDROID_LIBRARY)
-    id(GradlePlugin.ORG_KOTLIN_ANDROID)
-    id(GradlePlugin.KAPT)
-    id(GradlePlugin.DAGGER_HILT)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -12,7 +13,6 @@ android {
     defaultConfig {
         minSdk = 24
         targetSdk = 34
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -28,59 +28,69 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = Versions.compose.compose
-    }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
 dependencies {
-    implementation(project(mapOf("path" to ":core")))
-    // Android
-    implementation(Dependencies.android.lifecycleRuntime)
-    implementation(Dependencies.android.navigationRuntime)
-    implementation(Dependencies.android.dataStore)
-    implementation(Dependencies.android.lifecycleViewmodel)
-    implementation(Dependencies.android.ktx)
-    implementation(Dependencies.android.material)
+    // Project modules
+    implementation(project(":core"))
+    implementation(project(":model"))
+
+    // Android Core
+    implementation(libs.android.lifecycle.runtime)
+    implementation(libs.android.lifecycle.viewmodel)
+    implementation(libs.android.datastore)
+    implementation(libs.android.navigation.runtime)
+    implementation(libs.android.core.ktx)
+    implementation(libs.android.material)
+
     // Compose
-    implementation(Dependencies.compose.icons)
-    implementation(Dependencies.compose.material)
-    implementation(Dependencies.compose.activity)
-    implementation(Dependencies.compose.navigation)
-    implementation(Dependencies.compose.viewModel)
-    implementation(Dependencies.compose.constraintLayout)
-    implementation(Dependencies.compose.uiToolingPreview)
-    // implementation(Dependencies.compose.ui)
-    //implementation(Dependencies.compose.uiTest)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.material3)
+implementation(libs.compose.material)
+    implementation(libs.compose.activity)
+    implementation(libs.compose.navigation)
+    implementation(libs.compose.viewmodel)
+    implementation(libs.compose.constraint)
+    implementation(libs.compose.tooling.preview)
+    implementation(libs.compose.icons)
+
     // Hilt
-    implementation(Dependencies.android.hilt.android)
-    kapt(Dependencies.android.hilt.androidCompiler)
-    kapt(Dependencies.android.hilt.compiler)
-    implementation(Dependencies.android.hilt.navigation)
-    //Coroutines
-    implementation(Dependencies.coroutines.android)
-    implementation(Dependencies.coroutines.test)
-    implementation(Dependencies.coroutines.core)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.hilt.navigation)
+
+    // Coroutines
+    implementation(libs.coroutines.android)
+    implementation(libs.coroutines.test)
+    implementation(libs.coroutines.core)
+
     // Paging
-    implementation(Dependencies.paging.compose)
-    implementation(Dependencies.paging.runtime)
+    implementation(libs.paging.compose)
+    implementation(libs.paging.runtime)
+
     // Accompanist
-    implementation(Dependencies.accompanist.animation)
-    implementation(Dependencies.accompanist.flowRow)
-    implementation(Dependencies.accompanist.systemUiController)
-    // Pretty time
-    implementation(Dependencies.android.prettyTime)
-    implementation(Dependencies.android.dataStore)
-    // DatePicker
+    implementation(libs.accompanist.animation)
+    implementation(libs.accompanist.flowrow)
+    implementation(libs.accompanist.systemui)
+
+    // Other
+    implementation(libs.android.prettytime)
+
+    // Sheets Compose Dialogs
     implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.0.2")
     implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.0.2")
     implementation("com.maxkeppeler.sheets-compose-dialogs:clock:1.0.2")
     implementation("com.maxkeppeler.sheets-compose-dialogs:state:1.0.2")
+
+    // Test
+    testImplementation(libs.test.junit)
+    androidTestImplementation(libs.test.junit.ext)
+    androidTestImplementation(libs.test.espresso)
 }

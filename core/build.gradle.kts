@@ -1,7 +1,9 @@
 plugins {
-    id(GradlePlugin.ANDROID_LIBRARY)
-    id(GradlePlugin.ORG_KOTLIN_ANDROID)
-    id(GradlePlugin.KAPT)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -23,38 +25,48 @@ android {
             )
         }
     }
+    buildFeatures {
+        compose = true
+    }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
 dependencies {
-
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.10.0")
+    // Project modules
     implementation(project(":model"))
+
+    // Android Core
+    implementation(libs.android.core.ktx)
+    implementation(libs.android.material)
+    implementation(libs.android.lifecycle.runtime)
+    implementation(libs.android.lifecycle.viewmodel)
+    implementation(libs.android.datastore)
+    implementation(libs.android.navigation.runtime)
     implementation("androidx.work:work-runtime-ktx:2.9.1")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
     // Compose
-    implementation(Dependencies.compose.icons)
-    implementation(Dependencies.compose.material)
-    implementation(Dependencies.compose.activity)
-    implementation(Dependencies.compose.navigation)
-    implementation(Dependencies.compose.viewModel)
-    implementation(Dependencies.compose.constraintLayout)
-    implementation(Dependencies.compose.uiToolingPreview)
-    // DataStore
-    implementation(Dependencies.android.dataStore)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.material3)
+implementation(libs.compose.material)
+    implementation(libs.compose.activity)
+    implementation(libs.compose.navigation)
+    implementation(libs.compose.viewmodel)
+    implementation(libs.compose.constraint)
+    implementation(libs.compose.tooling.preview)
+
     // Hilt
-    implementation(Dependencies.android.hilt.android)
-    kapt(Dependencies.android.hilt.androidCompiler)
-    kapt(Dependencies.android.hilt.compiler)
-    implementation(Dependencies.android.hilt.navigation)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.hilt.navigation)
+
+    // Test
+    testImplementation(libs.test.junit)
+    androidTestImplementation(libs.test.junit.ext)
+    androidTestImplementation(libs.test.espresso)
 }

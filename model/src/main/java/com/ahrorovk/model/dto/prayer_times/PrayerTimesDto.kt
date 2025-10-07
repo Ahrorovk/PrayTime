@@ -1,5 +1,7 @@
 package com.ahrorovk.model.dto.prayer_times
 
+import java.io.Serial
+
 data class PrayerTimesDto(
     val id: Int? = null,
     val fajrTime: String,

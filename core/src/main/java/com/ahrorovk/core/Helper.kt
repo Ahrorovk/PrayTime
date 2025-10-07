@@ -2,14 +2,21 @@ package com.ahrorovk.core
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.AssetManager
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.ahrorovk.core.model.Language
 import com.ahrorovk.core.model.Time
+import com.ahrorovk.model.dto.get_prayer_time.Location
 import com.ahrorovk.model.local.pray_time.PrayerTimesEntity
-import toMMDDYYYY
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.text.SimpleDateFormat
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -26,7 +33,7 @@ fun doesScreenHaveBottomBar(currentScreen: String) = true
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun isDateDifferent(selectedDate: Long, lastDateFromDb: String): Boolean {
-    val _selectedDate = selectedDate.toMMDDYYYY().toMMDDYYYY()
+    val _selectedDate = selectedDate.toMMDDYYYYLD()
     val _lastDateFromDb = lastDateFromDb.toMMDDYYYY()
     return _lastDateFromDb.year < _selectedDate.year || _lastDateFromDb.monthValue < _selectedDate.monthValue
 }
@@ -62,7 +69,7 @@ fun dateFormatter(state: Int): String {
     else "$state"
 }
 
-fun getListOfTimes(times: PrayerTimesEntity) = listOf(
+fun getListOfTimeStates(times: PrayerTimesEntity) = listOf(
     Time("Fajr", times.fajrTime, R.drawable.fajr),
     Time("Zuhr", times.zuhrTime, R.drawable.zuhr),
     Time("Asr", times.asrTime, R.drawable.asr),
@@ -73,6 +80,14 @@ fun getListOfTimes(times: PrayerTimesEntity) = listOf(
 fun getLanguages() = listOf(
     Language(0, "English", "en"),
     Language(1, "Russian", "ru")
+)
+
+fun getListOfTimes(times: PrayerTimesEntity) = listOf(
+    times.fajrTime,
+    times.zuhrTime,
+    times.asrTime,
+    times.magribTime,
+    times.ishaTime
 )
 
 @SuppressLint("NewApi")

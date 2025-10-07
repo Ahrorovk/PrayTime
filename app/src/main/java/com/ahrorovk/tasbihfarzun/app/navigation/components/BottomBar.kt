@@ -1,7 +1,7 @@
 package com.ahrorovk.tasbihfarzun.app.navigation.components
 
 import androidx.compose.material.BottomNavigation
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import com.ahrorovk.core.R
@@ -11,8 +11,8 @@ import com.ahrorovk.model.navigation.BottomNavDestination
 @Composable
 fun PrayerfulPathBottomBar(navController: NavController) {
     BottomNavigation(
-        backgroundColor = MaterialTheme.colors.primaryVariant,
-        contentColor = MaterialTheme.colors.primaryVariant
+        backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.primaryContainer
     ) {
         bottomNavDestinations.forEach { navItem ->
             BottomNavItem(navController = navController, item = navItem)

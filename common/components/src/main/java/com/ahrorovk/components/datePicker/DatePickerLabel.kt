@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
@@ -21,7 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.maxkeppeker.sheets.core.models.base.rememberSheetState
-import toCurrentInMillis
+import com.ahrorovk.core.toCurrentInMillis
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -34,7 +34,7 @@ fun DatePickerLabel(
 
     Box(modifier = modifier
         .clip(RoundedCornerShape(12.dp))
-        .background(MaterialTheme.colors.secondary)
+        .background(MaterialTheme.colorScheme.secondary)
         .clickable {
             calendarState.show()
         }) {
