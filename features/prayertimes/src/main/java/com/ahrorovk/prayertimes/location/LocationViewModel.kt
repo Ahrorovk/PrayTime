@@ -1,7 +1,6 @@
 package com.ahrorovk.prayertimes.location
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ahrorovk.core.DataStoreManager
@@ -13,7 +12,6 @@ import com.ahrorovk.domain.use_case.location.GetLocationBySearchUseCase
 import com.ahrorovk.domain.use_case.location.GetLocationNameUseCase
 import com.ahrorovk.model.dto.toLocation
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
