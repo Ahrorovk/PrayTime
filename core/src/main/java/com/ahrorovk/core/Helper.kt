@@ -7,6 +7,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.ahrorovk.core.model.Language
 import com.ahrorovk.core.model.Time
 import com.ahrorovk.model.dto.get_prayer_time.Location
 import com.ahrorovk.model.local.pray_time.PrayerTimesEntity
@@ -29,68 +30,6 @@ fun Long.toTimeHoursAndMinutes(): String {
 
 fun doesScreenHaveBottomBar(currentScreen: String) = true
 
-
-fun parseCSVtoLocations(context: Context, fileName: String): List<Location> {
-    val locations = mutableListOf<Location>()
-
-    try {
-        context.assets.open(fileName).use { inputStream ->
-            BufferedReader(InputStreamReader(inputStream)).use { reader ->
-                var line: String?
-                // Пропускаем заголовок
-                reader.readLine()
-
-                while (reader.readLine().also { line = it } != null) {
-                    line?.let { currentLine ->
-                        // Разбиваем строку с учетом кавычек
-                        val fields = parseCSVLine(currentLine)
-
-                        if (fields.size >= 4) {
-                            try {
-                                val city = fields[0].removeSurrounding("\"")
-                                val lat = fields[2].removeSurrounding("\"").toDouble()
-                                val lng = fields[3].removeSurrounding("\"").toDouble()
-                                val country = fields[4].removeSurrounding("\"")
-
-                                locations.add(Location(lat, lng, city, country))
-                            } catch (e: NumberFormatException) {
-                                android.util.Log.e(
-                                    "CSV_Parser",
-                                    "Ошибка парсинга координат в строке: $currentLine"
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    } catch (e: Exception) {
-        android.util.Log.e("CSV_Parser", "Ошибка чтения файла из assets: ${e.message}")
-    }
-
-    return locations
-}
-
-private fun parseCSVLine(line: String): List<String> {
-    val result = mutableListOf<String>()
-    var currentField = StringBuilder()
-    var inQuotes = false
-
-    for (char in line) {
-        when {
-            char == '"' -> inQuotes = !inQuotes
-            char == ',' && !inQuotes -> {
-                result.add(currentField.toString())
-                currentField = StringBuilder()
-            }
-
-            else -> currentField.append(char)
-        }
-    }
-    result.add(currentField.toString())
-
-    return result
-}
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun isDateDifferent(selectedDate: Long, lastDateFromDb: String): Boolean {
@@ -136,6 +75,11 @@ fun getListOfTimeStates(times: PrayerTimesEntity) = listOf(
     Time("Asr", times.asrTime, R.drawable.asr),
     Time("Maghrib", times.magribTime, R.drawable.maghrib),
     Time("Isha", times.ishaTime, R.drawable.isha)
+)
+
+fun getLanguages() = listOf(
+    Language(0, "English", "en"),
+    Language(1, "Russian", "ru")
 )
 
 fun getListOfTimes(times: PrayerTimesEntity) = listOf(
