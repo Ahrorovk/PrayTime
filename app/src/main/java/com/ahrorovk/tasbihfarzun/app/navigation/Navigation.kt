@@ -18,6 +18,8 @@ import com.ahrorovk.tasbihfarzun.app.navigation.components.PrayerfulPathBottomBa
 import com.ahrorovk.zikr.zikr.ZikrScreen
 import com.ahrorovk.zikr.zikr.ZikrViewModel
 import com.ahrorovk.core.toCurrentInMillis
+import com.ahrorovk.prayertimes.location.LocationScreen
+import com.ahrorovk.prayertimes.location.LocationViewModel
 import java.time.LocalDate
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "NewApi")
@@ -38,7 +40,8 @@ fun Navigation(
             composable(Routes.ZikrScreen.route) {
                 val viewModel = hiltViewModel<ZikrViewModel>()
                 val state = viewModel.state.collectAsState()
-                ZikrScreen(state = state.value,
+                ZikrScreen(
+                    state = state.value,
                     onEvent = { event ->
                         when (event) {
                             else -> {
@@ -64,7 +67,26 @@ fun Navigation(
                         viewModel.onEvent(PrayerTimesEvent.GetPrayerTimesFromDb)
                 }
 
-                PrayerTimesScreen(state = state.value,
+                PrayerTimesScreen(
+                    state = state.value,
+                    onEvent = { event ->
+                        when (event) {
+                            is PrayerTimesEvent.OnLocationChange -> {
+                                navController.navigate(Routes.LocationScreen.route)
+                            }
+
+                            else -> viewModel.onEvent(event)
+                        }
+                    }
+                )
+            }
+
+            composable(Routes.LocationScreen.route) {
+                val viewModel = hiltViewModel<LocationViewModel>()
+                val state = viewModel.state.collectAsState()
+
+                LocationScreen(
+                    state = state.value,
                     onEvent = { event ->
                         when (event) {
                             else -> viewModel.onEvent(event)

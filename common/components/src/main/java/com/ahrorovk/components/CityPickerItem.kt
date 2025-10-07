@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ahrorovk.model.dto.get_prayer_time.Location
+import com.ahrorovk.model.dto.toLocationName
 
 @Composable
 fun CityPickerItem(
@@ -36,7 +37,7 @@ fun CityPickerItem(
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
         )
         Text(
-            location.city + ", " + location.country,
+            location.toLocationName(),
             style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
         )
     }

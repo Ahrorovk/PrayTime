@@ -12,7 +12,7 @@ import javax.inject.Inject
 class GetLocationNameUseCase @Inject constructor(
     private val repository: LocationRepository
 ) {
-    suspend operator fun invoke(lat: Double, lon: Double): Flow<Resource<LocationNameResponse>> =
+    operator fun invoke(lat: Double, lon: Double): Flow<Resource<LocationNameResponse>> =
         flow {
             try {
                 emit(Resource.Loading<LocationNameResponse>())

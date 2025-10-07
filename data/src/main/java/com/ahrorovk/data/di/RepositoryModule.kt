@@ -1,6 +1,6 @@
 package com.ahrorovk.data.di
 
-import android.content.Context
+import android.app.Application
 import com.ahrorovk.core.HttpRoutes
 import com.ahrorovk.data.repository.LocationRepositoryImpl
 import com.ahrorovk.data.repository.PrayerTimesRepositoryImpl
@@ -40,6 +40,23 @@ object RepositoryModule {
             .build()
             .create(PrayerTimesApi::class.java)
 
+    @Singleton
+    @Provides
+    fun provideLocationApi(): LocationApi =
+        Retrofit
+            .Builder()
+            .baseUrl(HttpRoutes.LOCATION_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(
+                OkHttpClient.Builder()
+                    .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+                    .readTimeout(120, TimeUnit.SECONDS)
+                    .connectTimeout(120, TimeUnit.SECONDS)
+                    .build()
+            )
+            .build()
+            .create(LocationApi::class.java)
+
     @Provides
     @Singleton
     fun providePrayerTimesRepository(
@@ -53,8 +70,8 @@ object RepositoryModule {
     @Singleton
     fun provideLocationRepository(
         locationApi: LocationApi,
-        context: Context
+        application: Application
     ): LocationRepository {
-        return LocationRepositoryImpl(locationApi, context)
+        return LocationRepositoryImpl(locationApi, application)
     }
 }

@@ -9,14 +9,14 @@ import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
-class GetLocationNameUseCase @Inject constructor(
+class GetLocationBySearchUseCase @Inject constructor(
     private val repository: LocationRepository
 ) {
-    operator fun invoke(lat: Double, lon: Double): Flow<Resource<LocationNameResponse>> =
+    operator fun invoke(city: String): Flow<Resource<LocationNameResponse>> =
         flow {
             try {
                 emit(Resource.Loading<LocationNameResponse>())
-                val response = repository.getLocationName(lat, lon)
+                val response = repository.getLocationBySearch(city)
                 emit(Resource.Success<LocationNameResponse>(response))
             } catch (e: HttpException) {
                 emit(Resource.Error<LocationNameResponse>(e.message ?: "Error"))

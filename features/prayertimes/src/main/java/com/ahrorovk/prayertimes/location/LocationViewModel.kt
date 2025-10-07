@@ -1,5 +1,6 @@
 package com.ahrorovk.prayertimes.location
 
+import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,9 +9,13 @@ import com.ahrorovk.core.Resource
 import com.ahrorovk.core.parseCSVtoLocations
 import com.ahrorovk.data.states.CurrLocationState
 import com.ahrorovk.domain.use_case.location.GetActualLocationUseCase
+import com.ahrorovk.domain.use_case.location.GetLocationBySearchUseCase
+import com.ahrorovk.domain.use_case.location.GetLocationNameUseCase
+import com.ahrorovk.model.dto.toLocation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
@@ -25,7 +30,9 @@ import javax.inject.Inject
 class LocationViewModel @Inject constructor(
     private val getActualLocationUseCase: GetActualLocationUseCase,
     private val dataStoreManager: DataStoreManager,
-    private val context: Context
+    private val getLocationNameUseCase: GetLocationNameUseCase,
+    private val getLocationBySearchUseCase: GetLocationBySearchUseCase,
+    private val context: Application
 ) : ViewModel() {
     private val _state = MutableStateFlow(LocationState())
     val state = _state.stateIn(
@@ -35,7 +42,6 @@ class LocationViewModel @Inject constructor(
     )
 
     init {
-        loadCitiesFromAssets()
         dataStoreManager.getLatitudeState.onEach { value ->
             _state.update {
                 it.copy(
@@ -61,6 +67,24 @@ class LocationViewModel @Inject constructor(
                         selectedLocation = event.location
                     )
                 }
+            }
+
+            is LocationEvent.OnSearchQueryChange -> {
+                viewModelScope.launch {
+                    withContext(Dispatchers.IO) {
+                        _state.update {
+                            it.copy(
+                                searchQuery = event.query
+                            )
+                        }
+                        delay(5000)
+                        getLocationBySearch()
+                    }
+                }
+            }
+
+            LocationEvent.GetActualLocation -> {
+                getActualLocation()
             }
 
             else -> {
@@ -125,4 +149,90 @@ class LocationViewModel @Inject constructor(
             }
         }.launchIn(viewModelScope)
     }
+
+    private fun getLocationName() {
+        getLocationNameUseCase.invoke(
+            _state.value.latitude,
+            _state.value.longitude
+        ).onEach { result ->
+            when (result) {
+                is Resource.Success<*> -> {
+                    val response = result.data
+                    if (response != null) {
+                        _state.update {
+                            it.copy(currLocationState = CurrLocationState(response = response.toLocation()))
+                        }
+                    } else {
+                        _state.update {
+                            it.copy(
+                                currLocationState = CurrLocationState(error = "Response is empty.")
+                            )
+                        }
+                    }
+                }
+
+                is Resource.Error<*> -> {
+                    _state.update {
+                        it.copy(
+                            currLocationState = CurrLocationState(
+                                error = result.message ?: "Some error"
+                            )
+                        )
+                    }
+                }
+
+                is Resource.Loading<*> -> {
+                    _state.update {
+                        it.copy(
+                            currLocationState = CurrLocationState(isLoading = true)
+                        )
+                    }
+                }
+            }
+
+        }.launchIn(viewModelScope)
+    }
+
+    private fun getLocationBySearch() {
+        getLocationBySearchUseCase.invoke(
+            _state.value.searchQuery
+        ).onEach { result ->
+            when (result) {
+                is Resource.Success<*> -> {
+                    val response = result.data
+                    if (response != null) {
+                        _state.update {
+                            it.copy(currLocationState = CurrLocationState(response = response.toLocation()))
+                        }
+                    } else {
+                        _state.update {
+                            it.copy(
+                                currLocationState = CurrLocationState(error = "Response is empty.")
+                            )
+                        }
+                    }
+                }
+
+                is Resource.Error<*> -> {
+                    _state.update {
+                        it.copy(
+                            currLocationState = CurrLocationState(
+                                error = result.message ?: "Some error"
+                            )
+                        )
+                    }
+                }
+
+                is Resource.Loading<*> -> {
+                    _state.update {
+                        it.copy(
+                            currLocationState = CurrLocationState(isLoading = true)
+                        )
+                    }
+                }
+            }
+
+        }.launchIn(viewModelScope)
+    }
+
 }

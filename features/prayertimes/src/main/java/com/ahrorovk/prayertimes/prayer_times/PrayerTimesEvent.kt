@@ -14,6 +14,7 @@ PrayerTimesEvent {
     data class OnIsLoadingStateChange(val state: Boolean) : PrayerTimesEvent()
     data class OnIsOnlineStateChange(val isOnline: Boolean) : PrayerTimesEvent()
     object GetPrayerTimes : PrayerTimesEvent()
+    object GoToLocation : PrayerTimesEvent()
     object GetPrayerTimesFromDb : PrayerTimesEvent()
     data class OnDbDateChange(val dateState: Long) : PrayerTimesEvent()
 }
