@@ -1,6 +1,7 @@
 package com.ahrorovk.prayertimes.location
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ahrorovk.core.DataStoreManager
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -69,20 +71,25 @@ class LocationViewModel @Inject constructor(
 
             is LocationEvent.OnSearchQueryChange -> {
                 viewModelScope.launch {
-                    withContext(Dispatchers.IO) {
-                        _state.update {
-                            it.copy(
-                                searchQuery = event.query
-                            )
-                        }
-                        delay(5000)
-                        getLocationBySearch()
+                    _state.update {
+                        it.copy(
+                            searchQuery = event.query
+                        )
                     }
                 }
             }
 
             LocationEvent.GetActualLocation -> {
-                getActualLocation()
+                viewModelScope.launch(Dispatchers.IO) {
+                    runBlocking {
+                        getActualLocation()
+                        getLocationName()
+                    }
+                }
+            }
+
+            LocationEvent.LoadCitiesFromAssets -> {
+                loadCitiesFromAssets()
             }
 
             else -> {
@@ -93,7 +100,8 @@ class LocationViewModel @Inject constructor(
 
     private fun loadCitiesFromAssets() {
         viewModelScope.launch(Dispatchers.IO) {
-            val locations = parseCSVtoLocations(context, "worldcities.csv")
+            val locations =
+                parseCSVtoLocations(context, "worldcities.csv", _state.value.searchQuery)
 
             withContext(Dispatchers.Main) {
                 _state.update {
@@ -117,7 +125,7 @@ class LocationViewModel @Inject constructor(
                             )
                         }
                         dataStoreManager.updateLatitudeState(response.latitude)
-                        dataStoreManager.updateLatitudeState(response.longitude)
+                        dataStoreManager.updateLongitudeState(response.longitude)
                     } else {
                         _state.update {
                             it.copy(
@@ -125,6 +133,7 @@ class LocationViewModel @Inject constructor(
                             )
                         }
                     }
+                    Log.e("TAG", "SuccessLocation-> ${_state.value}")
                 }
 
                 is Resource.Error<*> -> {
@@ -158,7 +167,10 @@ class LocationViewModel @Inject constructor(
                     val response = result.data
                     if (response != null) {
                         _state.update {
-                            it.copy(currLocationState = CurrLocationState(response = response.toLocation()))
+                            it.copy(
+                                currLocationState = CurrLocationState(response = response.toLocation()),
+                                locations = listOf(response.toLocation())
+                            )
                         }
                     } else {
                         _state.update {
@@ -200,7 +212,10 @@ class LocationViewModel @Inject constructor(
                     val response = result.data
                     if (response != null) {
                         _state.update {
-                            it.copy(currLocationState = CurrLocationState(response = response.toLocation()))
+                            it.copy(
+                                currLocationState = CurrLocationState(response = response.toLocation()),
+                                locations = listOf(response.toLocation())
+                            )
                         }
                     } else {
                         _state.update {

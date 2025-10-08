@@ -6,6 +6,7 @@ import android.content.res.AssetManager
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.ahrorovk.core.model.Language
 import com.ahrorovk.core.model.Time
@@ -30,7 +31,8 @@ fun Long.toTimeHoursAndMinutes(): String {
 
 fun doesScreenHaveBottomBar(currentScreen: String) = true
 
-fun parseCSVtoLocations(context: Context, fileName: String): List<Location> {
+@SuppressLint("SuspiciousIndentation")
+fun parseCSVtoLocations(context: Context, fileName: String, query: String): List<Location> {
     val locations = mutableListOf<Location>()
 
     try {
@@ -51,8 +53,13 @@ fun parseCSVtoLocations(context: Context, fileName: String): List<Location> {
                                 val lat = fields[2].removeSurrounding("\"").toDouble()
                                 val lng = fields[3].removeSurrounding("\"").toDouble()
                                 val country = fields[4].removeSurrounding("\"")
-
-                                locations.add(Location(lat, lng, city, country))
+                                if (query.toLowerCase()
+                                        .contains(city.toLowerCase()) || query.lowercase()
+                                        .contains(country.toLowerCase())
+                                ) {
+                                    locations.add(Location(lat, lng, city, country))
+                                    Log.e("TAG", "Locations->${locations}")
+                                }
                             } catch (e: NumberFormatException) {
                                 android.util.Log.e(
                                     "CSV_Parser",

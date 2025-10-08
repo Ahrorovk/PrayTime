@@ -1,6 +1,7 @@
 package com.ahrorovk.data.repository
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Context
@@ -15,47 +16,40 @@ import com.ahrorovk.remote.LocationApi
 import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class LocationRepositoryImpl @Inject constructor(
     private val locationApi: LocationApi,
     private val context: Application
 ) : LocationRepository {
-    @RequiresPermission(anyOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    override fun getActualLocation(): Location {
-        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(
-            context
-        )
-        var location = Location(0.0, 0.0)
-        val task = fusedLocationProviderClient.lastLocation
+    @SuppressLint("MissingPermission")
+    override suspend fun getActualLocation(): Location? {
+        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
 
-        if (ActivityCompat
-                .checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED && ActivityCompat
-                .checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
-
-            ActivityCompat.requestPermissions(
-                context as Activity,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                101
-            )
-            return location
+            return null
         }
 
-        task.addOnSuccessListener {
-            if (it != null) {
-                location = Location(it.longitude, it.latitude)
-                Log.e(
-                    "LocationResponse",
-                    "Location - > ${location.longitude}  + ${location.latitude}"
-                )
-            } else {
-                Log.e("NULL", "NULL")
-            }
+        return suspendCoroutine { continuation ->
+            fusedLocationProviderClient.lastLocation
+                .addOnSuccessListener { location ->
+                    continuation.resume(Location(location.latitude,location.longitude))
+                }
+                .addOnFailureListener {
+                    continuation.resume(null)
+                }
         }
-        return location
     }
+
 
     override suspend fun getLocationName(
         latitude: Double,

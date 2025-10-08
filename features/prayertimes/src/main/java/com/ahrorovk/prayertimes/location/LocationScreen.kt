@@ -1,5 +1,6 @@
 package com.ahrorovk.prayertimes.location
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material.TextField
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,16 +44,17 @@ fun LocationScreen(
                         backgroundColor = Color.Transparent
                     )
                 )
+                Button({onEvent(LocationEvent.LoadCitiesFromAssets)}) { }
+
+                Text("Current Location",Modifier.clickable {
+                    onEvent(LocationEvent.GetActualLocation)
+                })
             }
             itemsIndexed(state.locations.sortedBy { it.country }) { ind, location ->
-                if (location.toLocationName().toLowerCase()
-                        .contains(state.searchQuery.toLowerCase())
-                )
-                    CityPickerItem(location = location) {
-                        onEvent(LocationEvent.OnSelectedLocation(location))
-                    }
+                CityPickerItem(location = location) {
+                    onEvent(LocationEvent.OnSelectedLocation(location))
+                }
             }
-
         }
     }
 }
