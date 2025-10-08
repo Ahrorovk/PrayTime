@@ -6,5 +6,6 @@ sealed class LocationEvent {
     data class OnSelectedLocation(val location: Location) : LocationEvent()
     data class OnSearchQueryChange(val query: String) : LocationEvent()
     object GetActualLocation : LocationEvent()
+    object LoadCitiesFromAssets : LocationEvent()
     object GoBack : LocationEvent()
 }

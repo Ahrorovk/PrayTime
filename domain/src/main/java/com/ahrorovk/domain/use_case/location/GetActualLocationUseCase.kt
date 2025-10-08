@@ -12,17 +12,17 @@ import javax.inject.Inject
 class GetActualLocationUseCase @Inject constructor(
     private val repository: LocationRepository
 ) {
-    operator fun invoke(): Flow<Resource<Location>> = flow {
+    operator fun invoke(): Flow<Resource<Location?>> = flow {
         try {
-            emit(Resource.Loading<Location>())
+            emit(Resource.Loading<Location?>())
             val response = repository.getActualLocation()
-            emit(Resource.Success<Location>(response))
+            emit(Resource.Success<Location?>(response))
         } catch (e: HttpException) {
-            emit(Resource.Error<Location>(e.message ?: "Error"))
+            emit(Resource.Error<Location?>(e.message ?: "Error"))
         } catch (e: IOException) {
-            emit(Resource.Error<Location>(e.message ?: "Check your internet connection."))
+            emit(Resource.Error<Location?>(e.message ?: "Check your internet connection."))
         } catch (e: Exception) {
-            emit(Resource.Error<Location>("${e.message}"))
+            emit(Resource.Error<Location?>("${e.message}"))
         }
     }
 }
