@@ -13,8 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +39,7 @@ fun CommonSettingsCard(
             .height(46.dp)
             .shadow(elevation = 8.dp, shape = RoundedCornerShape(10.dp))
             .clickable { onClick() },
-        backgroundColor = Color(0xFF43A3FF),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF43A3FF)),
         border = BorderStroke(width = 2.dp, color = Color(0xFF007FFD)),
         shape = RoundedCornerShape(10.dp)
     ) {

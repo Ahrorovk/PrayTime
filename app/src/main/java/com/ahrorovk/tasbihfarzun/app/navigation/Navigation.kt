@@ -1,7 +1,7 @@
 package com.ahrorovk.tasbihfarzun.app.navigation
 
 import android.annotation.SuppressLint
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
