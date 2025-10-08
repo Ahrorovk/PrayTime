@@ -39,9 +39,9 @@ fun LocationScreen(
                     placeholder = {
                         Text(text = "Search city")
                     },
-                    colors = TextFieldDefaults.textFieldColors(
-                        disabledTextColor = Color.Transparent,
-                        backgroundColor = Color.Transparent
+                    colors = TextFieldDefaults.colors(
+                        disabledContainerColor = Color.Transparent,
+                        disabledTextColor = Color.Transparent
                     )
                 )
                 Button({onEvent(LocationEvent.LoadCitiesFromAssets)}) { }
